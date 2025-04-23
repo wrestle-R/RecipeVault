@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${recipe.title} + ' - RecipeVault'">Recipe - RecipeVault</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #1e1e1e;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #bb86fc;
+            margin: 0;
+        }
+        .recipe-details {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #bb86fc;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #3700b3;
+            color: #fff;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 15px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .ingredients-list {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+        .instructions {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #03dac6;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .ai-section {
+            background-color: rgba(187, 134, 252, 0.1);
+            border-left: 4px solid #bb86fc;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+        .ai-title {
+            color: #bb86fc;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .ai-title::before {
+            content: "🤖";
+            margin-right: 8px;
+        }
+        .ingredient-item {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .ingredient-item:hover .alternative-btn {
+            opacity: 1;
+        }
+        .alternative-btn {
+            background: none;
+            border: none;
+            color: #bb86fc;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .allergy-form {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #2d2d2d;
+            border-radius: 5px;
+        }
+        .allergy-form input {
+            padding: 8px;
+            border: 1px solid #444;
+            background-color: #333;
+            color: #e0e0e0;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .allergy-form button {
+            padding: 8px 12px;
+            background-color: #bb86fc;
+            color: #121212;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+            font-style: italic;
+            color: #bb86fc;
+        }
+        #alternativeResults, #allergyResults {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #2d2d2d;
+            border-radius: 5px;
+            white-space: pre-line;
+            display: none;
+        }
+        /* Add styles for markdown formatting */
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            color: #bb86fc;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+        .markdown-content ul, .markdown-content ol {
+            padding-left: 1.5em;
+        }
+        .markdown-content li {
+            margin-bottom: 0.3em;
+        }
+        .markdown-content code {
+            background-color: #2d2d2d;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .markdown-content pre {
+            background-color: #2d2d2d;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .markdown-content blockquote {
+            border-left: 4px solid #666;
+            margin-left: 0;
+            padding-left: 10px;
+            color: #aaa;
+        }
+        .markdown-content p {
+            margin-bottom: 1em;
+        }
+        .markdown-content a {
+            color: #03dac6;
+            text-decoration: none;
+        }
+        .markdown-content a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <!-- Replace with updated markdown library and add sanitize-html for safety -->
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sanitize-html@2.9.0/dist/sanitize-html.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1 th:text="${recipe.title}">Recipe Title</h1>
+        <div th:if="${recipe.tags != null && !recipe.tags.empty}">
+            <span class="tag" th:each="tag : ${recipe.tags}" th:text="${tag}">Tag</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="recipe-details">
+            <div class="section">
+                <h2>Ingredients</h2>
+                <div class="ingredients-list markdown-content" id="ingredientsList" th:attr="data-content=${recipe.ingredients}">Ingredients go here</div>
+            </div>
+            
+            <div class="section">
+                <h2>Instructions</h2>
+                <div class="instructions markdown-content" id="instructionsList" th:attr="data-content=${recipe.instructions}">Instructions go here</div>
+            </div>
+            
+            <div class="ai-section">
+                <div class="ai-title">Gemini Health Tips</div>
+                <div th:text="${healthTips}">Health tips will appear here</div>
+            </div>
+            
+            <div class="ai-section">
+                <div class="ai-title">Ingredient Alternatives</div>
+                <p>Click on any ingredient to see alternatives:</p>
+                
+                <div id="processedIngredients"></div>
+                <div id="alternativeResults"></div>
+                
+                <div class="allergy-form">
+                    <h3>Get Allergy-Safe Substitutes</h3>
+                    <input type="text" id="ingredient" placeholder="Enter ingredient">
+                    <input type="text" id="allergies" placeholder="Enter allergies (e.g., nuts, dairy)">
+                    <button onclick="getAllergySafeSubstitutes()">Get Substitutes</button>
+                    <span id="allergyLoading" class="loading" style="display:none;">Thinking...</span>
+                    <div id="allergyResults"></div>
+                </div>
+            </div>
+        </div>
+        
+        <a th:href="@{/}" class="back-link">← Back to Recipes</a>
+    </div>
+    
+    <script th:inline="javascript">
+        // Initialize markdown-it with better options
+        const md = window.markdownit({
+            html: true,        // Enable HTML tags in source
+            breaks: true,      // Convert '\n' in paragraphs into <br>
+            linkify: true,     // Autoconvert URL-like text to links
+            typographer: true  // Enable smartquotes and other typographic replacements
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Format the ingredients with markdown - improved handling
+            const ingredientsElement = document.getElementById('ingredientsList');
+            const ingredientsContent = ingredientsElement.getAttribute('data-content');
+            if (ingredientsContent) {
+                // Replace \r\n with \n to normalize line breaks across platforms
+                const normalizedContent = ingredientsContent.replace(/\r\n/g, '\n');
+                
+                // Check if content looks like a list but doesn't have markdown list formatting
+                let formattedContent = normalizedContent;
+                if (!normalizedContent.match(/^[\*\-\+]|\d+\./m)) {
+                    // Convert plain text list to markdown list
+                    formattedContent = normalizedContent
+                        .split('\n')
+                        .filter(line => line.trim())
+                        .map(line => `- ${line}`)
+                        .join('\n');
+                }
+                
+                // Render markdown and sanitize output
+                const renderedHtml = md.render(formattedContent);
+                ingredientsElement.innerHTML = window.sanitizeHtml ? 
+                    sanitizeHtml(renderedHtml, {
+                        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
+                        allowedAttributes: {
+                            '*': ['class', 'style'],
+                            'a': ['href', 'target', 'rel'],
+                            'img': ['src', 'alt']
+                        }
+                    }) : renderedHtml;
+            }
+            
+            // Format the instructions with markdown
+            const instructionsElement = document.getElementById('instructionsList');
+            const instructionsContent = instructionsElement.getAttribute('data-content');
+            if (instructionsContent) {
+                // Replace \r\n with \n to normalize line breaks
+                const normalizedContent = instructionsContent.replace(/\r\n/g, '\n');
+                
+                // Check if content should be formatted as numbered list
+                let formattedContent = normalizedContent;
+                if (!normalizedContent.match(/^\d+\./m) && 
+                    !normalizedContent.match(/^[\*\-\+]/m) && 
+                    normalizedContent.split('\n').filter(l => l.trim()).length > 1) {
+                    // Convert plain text steps to numbered markdown list
+                    formattedContent = normalizedContent
+                        .split('\n')
+                        .filter(line => line.trim())
+                        .map((line, index) => `${index + 1}. ${line}`)
+                        .join('\n');
+                }
+                
+                // Render markdown and sanitize output
+                const renderedHtml = md.render(formattedContent);
+                instructionsElement.innerHTML = window.sanitizeHtml ? 
+                    sanitizeHtml(renderedHtml, {
+                        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
+                        allowedAttributes: {
+                            '*': ['class', 'style'],
+                            'a': ['href', 'target', 'rel'],
+                            'img': ['src', 'alt']
+                        }
+                    }) : renderedHtml;
+            }
+            
+            // Process ingredients for alternatives with improved parsing
+            const processedIngredients = document.getElementById('processedIngredients');
+            const ingredientsText = ingredientsContent || '';
+            
+            // Better ingredient parsing - handle markdown lists, quantities, etc.
+            const ingredientRegex = /(?:^|\n)(?:[-*+]|\d+\.)\s*(?:([0-9¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+(?:\s*[-\/]\s*[0-9¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)?)\s*(?:cup|cups|tbsp|tsp|tablespoon|tablespoons|teaspoon|teaspoons|oz|ounce|ounces|lb|lbs|pound|pounds|g|gram|grams|kg|kilogram|kilograms|ml|milliliter|milliliters|l|liter|liters|pinch|pinches|dash|dashes|handful|handfuls|slice|slices|clove|cloves|bunch|bunches|sprig|sprigs|stalk|stalks|head|heads|piece|pieces|can|cans|jar|jars|package|packages|bottle|bottles)?\s*)?(.+?)(?=\n(?:[-*+]|\d+\.)|$)/gi;
+            
+            let ingredients = [];
+            let match;
+            while ((match = ingredientRegex.exec(ingredientsText + '\n-')) !== null) {
+                // Extract the actual ingredient name, removing any markdown formatting
+                const quantity = match[1] || '';
+                const unit = match[2] || '';
+                const ingredient = match[3].trim().replace(/\*\*|\*|\_\_|\_|\~\~|\`/g, '');
+                
+                if (ingredient && ingredient.length > 2) {
+                    ingredients.push({
+                        full: quantity ? `${quantity} ${unit} ${ingredient}`.replace(/\s+/g, ' ').trim() : ingredient,
+                        name: ingredient.split(',')[0].split('(')[0].trim() // Get the basic ingredient name
+                    });
+                }
+            }
+            
+            // If regex didn't find anything, fall back to simple line splitting
+            if (ingredients.length === 0) {
+                ingredients = ingredientsText
+                    .split('\n')
+                    .filter(line => line.trim().length > 2)
+                    .map(line => {
+                        const cleaned = line.replace(/^[\*\-\+]\s+/, '')
+                                        .replace(/^[0-9]+\.\s+/, '')
+                                        .replace(/\*\*|\*|\_\_|\_|\~\~|\`/g, '')
+                                        .trim();
+                        return { 
+                            full: cleaned,
+                            name: cleaned.split(',')[0].split('(')[0].trim()
+                        };
+                    });
+            }
+            
+            // Create interactive ingredient items with better display
+            ingredients.forEach((ingredient, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'ingredient-item';
+                itemDiv.innerHTML = `
+                    <span>${ingredient.full}</span>
+                    <button class="alternative-btn" onclick="getAlternative('${ingredient.name.replace(/'/g, "\\'")}')" 
+                     data-ingredient="${ingredient.name}">
+                        Get alternatives
+                    </button>
+                    <span id="loading-${index}" class="loading" style="display:none;">Thinking...</span>
+                `;
+                processedIngredients.appendChild(itemDiv);
+            });
+        });
+        
+        function getAlternative(ingredient) {
+            const alternativeResults = document.getElementById('alternativeResults');
+            alternativeResults.style.display = 'block';
+            alternativeResults.innerText = 'Getting alternatives for "' + ingredient + '"...';
+            
+            fetch(`/api/alternatives?ingredient=${encodeURIComponent(ingredient)}`)
+                .then(response => response.text())
+                .then(data => {
+                    alternativeResults.innerText = data;
+                })
+                .catch(error => {
+                    alternativeResults.innerText = 'Error: ' + error.message;
+                });
+        }
+        
+        function getAllergySafeSubstitutes() {
+            const ingredient = document.getElementById('ingredient').value.trim();
+            const allergies = document.getElementById('allergies').value.trim();
+            
+            if (!ingredient || !allergies) {
+                alert('Please enter both an ingredient and allergies');
+                return;
+            }
+            
+            const allergyResults = document.getElementById('allergyResults');
+            const loadingElement = document.getElementById('allergyLoading');
+            
+            loadingElement.style.display = 'inline-block';
+            allergyResults.style.display = 'block';
+            allergyResults.innerText = 'Searching for allergy-safe substitutes...';
+            
+            fetch(`/api/allergy-substitutes?ingredient=${encodeURIComponent(ingredient)}&allergies=${encodeURIComponent(allergies)}`)
+                .then(response => response.text())
+                .then(data => {
+                    allergyResults.innerText = data;
+                    loadingElement.style.display = 'none';
+                })
+                .catch(error => {
+                    allergyResults.innerText = 'Error: ' + error.message;
+                    loadingElement.style.display = 'none';
+                });
+        }
+    </script>
+</body>
+</html>
