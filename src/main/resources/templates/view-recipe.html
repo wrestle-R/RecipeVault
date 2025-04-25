@@ -25,11 +25,13 @@
             --border: #383838;
             --error: #e63757;
             --success: #33b07c;
-            --card-radius: 8px;
+            --card-radius: 12px;
+            --button-radius: 8px;
             --transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
             --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.18);
+            --fixed-width: 896px; /* Equivalent to max-w-4xl */
         }
         
         /* Light theme variables */
@@ -68,6 +70,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             transition: background-color 0.3s ease, color 0.3s ease;
+            min-width: var(--fixed-width);
         }
         
         /* Scrollbar styling */
@@ -78,36 +81,44 @@
             background: var(--background-dark);
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--background-light);
+            background: var(--primary-light);
             border-radius: 6px;
+            opacity: 0.6;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #505050;
+            background: var(--primary);
         }
         
-        /* Container */
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
+        /* Main layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
         }
         
         /* Header */
         header {
             background: var(--background-dark);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             padding: 1rem 2rem;
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-md);
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         
         .header-content {
-            max-width: 1200px;
+            width: var(--fixed-width);
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -117,157 +128,361 @@
         .logo-container {
             display: flex;
             align-items: center;
+            gap: 0.75rem;
         }
         
         .logo {
-            font-size: 1.6rem;
-            color: var(--primary);
-            margin-right: 0.8rem;
-            transform-origin: center;
-            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .brand-container {
+            display: flex;
+            flex-direction: column;
         }
         
         .brand {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.3rem;
+            font-weight: 700;
             color: var(--text);
-            margin: 0;
             letter-spacing: -0.02em;
             transition: color 0.3s ease;
         }
         
         .tagline {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             font-weight: 400;
-            margin-top: 0.2rem;
             letter-spacing: 0.01em;
             transition: color 0.3s ease;
         }
         
-        /* Recipe Details */
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--background-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--border);
+            color: var(--text);
+            transform: rotate(15deg);
+        }
+        
+        /* Container */
+        .container {
+            width: var(--fixed-width);
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: var(--button-radius);
+            background: var(--background-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            text-decoration: none;
+            width: fit-content;
+            margin-bottom: 1.5rem;
+        }
+        
+        .back-btn:hover {
+            background: var(--card-bg);
+            color: var(--text);
+            transform: translateX(-4px);
+        }
+        
+        .back-btn i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Recipe Header */
         .recipe-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin-bottom: 2rem;
             text-align: center;
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        
+        .recipe-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 3px;
         }
         
         .recipe-title {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            color: var(--text);
             margin-bottom: 1rem;
-            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
             line-height: 1.2;
-            transition: color 0.3s ease;
         }
         
         .tags-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.75rem;
             justify-content: center;
-            margin-bottom: 1rem;
+            margin-top: 0.5rem;
         }
         
         .tag {
-            display: inline-block;
-            background-color: rgba(44, 123, 229, 0.15);
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 1rem;
+            background: rgba(44, 123, 229, 0.15);
             color: var(--primary);
-            font-size: 0.75rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 4px;
-            transition: var(--transition);
+            border-radius: 50px;
+            font-size: 0.85rem;
             font-weight: 500;
-        }
-        
-        [data-theme="light"] .tag {
-            background-color: rgba(44, 123, 229, 0.1);
+            transition: var(--transition);
         }
         
         .tag:hover {
-            background-color: rgba(44, 123, 229, 0.25);
+            background: rgba(44, 123, 229, 0.25);
+            transform: translateY(-2px);
         }
         
+        /* Recipe Layout */
+        .recipe-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        /* Recipe Card */
         .recipe-card {
             background: var(--card-bg);
             border-radius: var(--card-radius);
             overflow: hidden;
             box-shadow: var(--shadow-md);
-            transition: var(--transition);
             border: 1px solid var(--border);
-            margin-bottom: 2rem;
+            transition: box-shadow 0.3s ease;
         }
         
-        .section {
-            padding: 2rem;
+        .recipe-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--background-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             border-bottom: 1px solid var(--border);
         }
         
-        .section:last-child {
-            border-bottom: none;
-        }
-        
-        .section-title {
-            color: var(--primary);
-            font-size: 1.4rem;
+        .card-title {
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
+            color: var(--text);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
         
-        .section-title i {
+        .card-title i {
+            color: var(--primary);
             font-size: 1.2rem;
         }
         
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        /* Ingredients and Instructions */
         .ingredients-list, .instructions {
             color: var(--text);
             line-height: 1.7;
             font-size: 1rem;
         }
         
-        /* AI Sections */
-        .ai-section {
-            background-color: rgba(44, 123, 229, 0.08);
+        .ingredients-list ul, .instructions ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ingredients-list li, .instructions li {
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Health Tips Section */
+        .health-tips-section {
+            background: var(--card-bg);
             border-radius: var(--card-radius);
-            padding: 1.5rem;
-            margin-top: 2rem;
-            border-left: 4px solid var(--primary);
-            transition: background-color 0.3s ease;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            transition: box-shadow 0.3s ease;
+            margin-bottom: 2rem;
         }
         
-        [data-theme="light"] .ai-section {
-            background-color: rgba(44, 123, 229, 0.05);
+        .health-tips-section:hover {
+            box-shadow: var(--shadow-lg);
         }
         
-        .ai-title {
-            color: var(--primary);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-        
-        .ai-title i {
-            margin-right: 0.5rem;
-        }
-        
-        /* Ingredient Alternatives */
-        .ingredient-item {
-            margin-bottom: 1rem;
-            padding: 0.8rem;
-            background-color: var(--background-light);
-            border-radius: 6px;
-            transition: var(--transition);
+        .health-tips-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--background-dark);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .health-tips-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .health-tips-title i {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+        
+        .health-tips-content {
+            padding: 1.5rem;
+            display: none; /* Initially hidden */
+        }
+        
+        .view-tips-btn {
+            padding: 0.6rem 1.2rem;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: var(--button-radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .view-tips-btn:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(51, 176, 124, 0.3);
+        }
+        
+        /* Alternatives Section */
+        .alternatives-section {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .alternatives-section:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .alternatives-header {
+            padding: 1.25rem 1.5rem;
+            background: var(--background-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .alternatives-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var (--text);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .alternatives-title i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .alternatives-content {
+            padding: 1.5rem;
+        }
+        
+        .alternatives-intro {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Ingredient Items */
+        .ingredient-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .ingredient-item {
+            background: var(--background-light);
+            border-radius: var(--button-radius);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            border: 1px solid var(--border);
         }
         
         .ingredient-item:hover {
-            background-color: rgba(44, 123, 229, 0.1);
+            background: rgba(44, 123, 229, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .ingredient-name {
+            font-size: 0.95rem;
+            color: var(--text);
         }
         
         .alternative-btn {
@@ -279,69 +494,86 @@
             font-size: 0.8rem;
             cursor: pointer;
             transition: var(--transition);
-            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
         
         .alternative-btn:hover {
             background: var(--primary-dark);
-            opacity: 1;
+            transform: translateY(-2px);
+        }
+        
+        .alternative-btn i {
+            font-size: 0.75rem;
+        }
+        
+        /* Results Container */
+        .results-container {
+            background: var(--background-light);
+            border-radius: var(--button-radius);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 1px solid var(--border);
+            display: none;
         }
         
         /* Allergy Form */
         .allergy-form {
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background-color: var(--background-light);
+            margin-top: 2.5rem;
+            background: var(--background-light);
             border-radius: var(--card-radius);
-            transition: background-color 0.3s ease;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
         }
         
-        .allergy-form h3 {
+        .allergy-form-title {
             font-size: 1.1rem;
-            margin-bottom: 1rem;
-            color: var(--text);
             font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         .form-group {
             display: flex;
-            gap: 0.8rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
         }
         
         .form-input {
             flex: 1;
-            min-width: 200px;
-            padding: 0.8rem 1rem;
+            padding: 0.85rem 1rem;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--button-radius);
             background: var(--background);
             color: var(--text);
-            outline: none;
-            transition: var(--transition);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
         }
         
         .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
+        }
+        
+        .form-input:hover {
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 1px rgba(44, 123, 229, 0.2);
         }
         
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.75rem 1.5rem;
+            padding: 0.85rem 1.5rem;
             border: none;
-            border-radius: 6px;
+            border-radius: var(--button-radius);
             font-weight: 500;
             cursor: pointer;
             transition: var(--transition);
-            text-decoration: none;
-            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
             gap: 0.5rem;
-            letter-spacing: 0.01em;
         }
         
         .btn-primary {
@@ -351,8 +583,8 @@
         
         .btn-primary:hover {
             background: var(--primary-dark);
-            box-shadow: 0 4px 10px rgba(44, 123, 229, 0.4);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(44, 123, 229, 0.3);
         }
         
         .loading {
@@ -363,44 +595,18 @@
             font-size: 0.9rem;
         }
         
-        .results-container {
-            margin-top: 1rem;
-            padding: 1rem;
-            background-color: var(--background);
-            border-radius: 6px;
-            display: none;
-            border: 1px solid var(--border);
-        }
-        
-        /* Back Button */
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            margin-top: 2rem;
-            transition: var(--transition);
-        }
-        
-        .back-link:hover {
-            color: var(--primary-dark);
-            transform: translateX(-3px);
-        }
-        
         /* Footer */
         footer {
             background: var(--background-dark);
-            padding: 1.5rem;
-            margin-top: 4rem;
+            padding: 2rem;
+            margin-top: auto;
             text-align: center;
             border-top: 1px solid var(--border);
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         
         .footer-content {
-            max-width: 1200px;
+            width: var(--fixed-width);
             margin: 0 auto;
         }
         
@@ -413,8 +619,8 @@
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
-            margin-top: 0.8rem;
+            gap: 2rem;
+            margin-top: 1rem;
         }
         
         .footer-link {
@@ -422,43 +628,49 @@
             text-decoration: none;
             transition: var(--transition);
             font-size: 0.85rem;
+            position: relative;
         }
         
         .footer-link:hover {
             color: var(--primary);
         }
         
-        /* Theme toggle */
-        .theme-toggle {
-            background: var(--background-light);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            height: 36px;
-            width: 36px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
         }
         
-        .theme-toggle:hover {
-            background: var(--border);
-            color: var(--text);
+        .footer-link:hover::after {
+            width: 100%;
         }
         
         /* Markdown content styling */
-        .markdown-content h1, 
-        .markdown-content h2, 
+        .markdown-content {
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        
+        .markdown-content h1,
+        .markdown-content h2,
         .markdown-content h3 {
             color: var(--primary);
             margin-top: 1.2em;
             margin-bottom: 0.6em;
+            font-weight: 600;
         }
         
-        .markdown-content ul, 
+        .markdown-content p {
+            margin-bottom: 1em;
+        }
+        
+        .markdown-content ul,
         .markdown-content ol {
             padding-left: 1.5em;
             margin-bottom: 1em;
@@ -468,166 +680,147 @@
             margin-bottom: 0.5em;
         }
         
-        .markdown-content p {
-            margin-bottom: 1em;
-        }
-        
-        .markdown-content a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .markdown-content a:hover {
-            text-decoration: underline;
-        }
-        
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .reveal {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease;
-        }
-        
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-                padding: 0.5rem 0;
-            }
-            
-            .logo-container {
-                justify-content: center;
-            }
-            
-            .container {
-                padding: 1.5rem;
-            }
-            
-            .recipe-title {
-                font-size: 1.8rem;
-            }
-            
-            .section {
-                padding: 1.5rem;
-            }
-            
-            .form-group {
-                flex-direction: column;
-            }
-            
-            .form-input {
-                width: 100%;
-            }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="logo-container">
-                <div class="logo"><i class="fas fa-book-bookmark"></i></div>
-                <div>
-                    <h1 class="brand">RecipeVault</h1>
-                    <p class="tagline">Professional Recipe Management with AI</p>
-                </div>
-            </div>
-            <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
-                <i class="fas fa-sun"></i>
-            </button>
-        </div>
-    </header>
-
-    <div class="container">
-        <div class="recipe-header reveal">
-            <h1 class="recipe-title" id="recipeTitle">Homemade Pasta Carbonara</h1>
-            <div class="tags-container" id="recipeTags">
-                <span class="tag">Italian</span>
-                <span class="tag">Pasta</span>
-                <span class="tag">Dinner</span>
-            </div>
-        </div>
-
-        <div class="recipe-card reveal">
-            <div class="section">
-                <h2 class="section-title"><i class="fas fa-list"></i> Ingredients</h2>
-                <div class="ingredients-list markdown-content" id="ingredientsList">
-                    Loading ingredients...
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2 class="section-title"><i class="fas fa-utensils"></i> Instructions</h2>
-                <div class="instructions markdown-content" id="instructionsList">
-                    Loading instructions...
-                </div>
-            </div>
-        </div>
-        
-        <div class="ai-section reveal">
-            <div class="ai-title"><i class="fas fa-brain"></i> Health Tips</div>
-            <div id="healthTipsContent" class="markdown-content">
-                Loading health tips...
-            </div>
-        </div>
-        
-        <div class="recipe-card reveal">
-            <div class="section">
-                <h2 class="section-title"><i class="fas fa-exchange-alt"></i> Ingredient Alternatives</h2>
-                <p>Select an ingredient to see alternatives:</p>
-                
-                <div id="processedIngredients" class="reveal">
-                    <!-- Ingredient items will be generated here -->
-                </div>
-                
-                <div id="alternativeResults" class="results-container markdown-content">
-                    Select an ingredient to see alternatives.
-                </div>
-                
-                <div class="allergy-form reveal">
-                    <h3>Get Allergy-Safe Substitutes</h3>
-                    <div class="form-group">
-                        <input type="text" id="ingredient" class="form-input" placeholder="Enter ingredient">
-                        <input type="text" id="allergies" class="form-input" placeholder="Enter allergies (e.g., nuts, dairy)">
-                        <button id="allergyBtn" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Get Substitutes
-                        </button>
-                    </div>
-                    <span id="allergyLoading" class="loading" style="display:none;">Thinking...</span>
-                    <div id="allergyResults" class="results-container markdown-content">
-                        Enter an ingredient and allergies to find safe substitutes.
+    <div class="app-container">
+        <header>
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo"><i class="fas fa-utensils"></i></div>
+                    <div class="brand-container">
+                        <h1 class="brand">RecipeVault</h1>
+                        <p class="tagline">Professional Recipe Management</p>
                     </div>
                 </div>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="container">
+                <a href="/" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Recipes</span>
+                </a>
+                
+                <div class="recipe-header">
+                    <h1 class="recipe-title" id="recipeTitle">Homemade Pasta Carbonara</h1>
+                    <div class="tags-container" id="recipeTags">
+                        <span class="tag"><i class="fas fa-tag"></i> Italian</span>
+                        <span class="tag"><i class="fas fa-tag"></i> Pasta</span>
+                        <span class="tag"><i class="fas fa-tag"></i> Dinner</span>
+                    </div>
+                </div>
+                
+                <div class="recipe-layout">
+                    <!-- Ingredients Card -->
+                    <div class="recipe-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-list"></i> Ingredients
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="ingredients-list markdown-content" id="ingredientsList">
+                                Loading ingredients...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Instructions Card -->
+                    <div class="recipe-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-utensils"></i> Instructions
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="instructions markdown-content" id="instructionsList">
+                                Loading instructions...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Health Tips Section -->
+                    <div class="health-tips-section">
+                        <div class="health-tips-header">
+                            <div class="health-tips-title">
+                                <i class="fas fa-heart"></i> Health Tips
+                            </div>
+                            <div> <!-- Wrapper for button and loader -->
+                                <button class="view-tips-btn" id="viewTipsBtn">
+                                    <i class="fas fa-eye"></i> View Tips
+                                </button>
+                                <span id="tipsLoading" class="loading" style="display:none;">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="health-tips-content markdown-content" id="healthTipsContent" style="display: none;">
+                            <!-- Health tips will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Alternatives Section -->
+                    <div class="alternatives-section">
+                        <div class="alternatives-header">
+                            <div class="alternatives-title">
+                                <i class="fas fa-exchange-alt"></i> Ingredient Alternatives
+                            </div>
+                        </div>
+                        <div class="alternatives-content">
+                            <p class="alternatives-intro">Select an ingredient to see alternatives:</p>
+                            
+                            <div class="ingredient-items" id="processedIngredients">
+                                <!-- Ingredient items will be generated here -->
+                            </div>
+                            
+                            <div id="alternativeResults" class="results-container markdown-content">
+                                Select an ingredient to see alternatives.
+                            </div>
+                            
+                            <div class="allergy-form">
+                                <h3 class="allergy-form-title"><i class="fas fa-allergies"></i> Get Allergy-Safe Substitutes</h3>
+                                <div class="form-group">
+                                    <input type="text" id="ingredient" class="form-input" placeholder="Enter ingredient">
+                                    <input type="text" id="allergies" class="form-input" placeholder="Enter allergies (e.g., nuts, dairy)">
+                                    <button id="allergyBtn" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> Get Substitutes
+                                    </button>
+                                </div>
+                                <span id="allergyLoading" class="loading" style="display:none;">Thinking...</span>
+                                <div id="allergyResults" class="results-container markdown-content">
+                                    Enter an ingredient and allergies to find safe substitutes.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <a href="/" class="back-link">
-            <i class="fas fa-arrow-left"></i> Back to Recipes
-        </a>
+
+        <footer>
+            <div class="footer-content">
+                <p class="footer-text">© 2025 RecipeVault - Enterprise Recipe Management Solution</p>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">About</a>
+                    <a href="#" class="footer-link">Terms</a>
+                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link">Support</a>
+                </div>
+            </div>
+        </footer>
     </div>
-
-    <footer>
-        <div class="footer-content">
-            <p class="footer-text">© 2025 RecipeVault - Enterprise Recipe Management Solution</p>
-            <div class="footer-links">
-                <a href="#" class="footer-link">About</a>
-                <a href="#" class="footer-link">Terms</a>
-                <a href="#" class="footer-link">Privacy</a>
-                <a href="#" class="footer-link">Support</a>
-            </div>
-        </div>
-    </footer>
 
     <script>
         // Sample recipe data (in a real app, this would come from the server)
@@ -655,12 +848,7 @@
 
 6. Remove the skillet from the heat and quickly pour in the egg and cheese mixture, stirring constantly to create a creamy sauce. If the sauce is too thick, add a splash of the reserved pasta water to thin it out.
 
-7. Serve immediately, garnished with additional grated cheese, freshly ground black pepper, and chopped parsley.`,
-            healthTips: `• Carbonara is a rich dish, so consider serving it with a light side salad to balance the meal.
-• For a lighter version, you can use turkey bacon instead of pancetta and reduce the amount of cheese.
-• Adding green peas or asparagus can introduce some vegetables to this classic dish.
-• Whole wheat pasta can be substituted for regular pasta to increase the fiber content.
-• This dish is high in protein from the eggs and cheese, making it quite satisfying.`
+7. Serve immediately, garnished with additional grated cheese, freshly ground black pepper, and chopped parsley.`
         };
 
         // Initialize markdown-it
@@ -728,7 +916,7 @@
             recipeData.tags.forEach(tag => {
                 const tagSpan = document.createElement('span');
                 tagSpan.className = 'tag';
-                tagSpan.textContent = tag;
+                tagSpan.innerHTML = `<i class="fas fa-tag"></i> ${tag}`;
                 tagsContainer.appendChild(tagSpan);
             });
             
@@ -739,10 +927,6 @@
             // Format and render instructions
             const instructionsElement = document.getElementById('instructionsList');
             instructionsElement.innerHTML = md.render(recipeData.instructions);
-            
-            // Format and render health tips
-            const healthTipsElement = document.getElementById('healthTipsContent');
-            healthTipsElement.innerHTML = formatGeminiResponse(recipeData.healthTips);
             
             // Process ingredients for alternatives
             const processedIngredients = document.getElementById('processedIngredients');
@@ -762,9 +946,9 @@
                 const cleanedIngredient = mainIngredient.replace(/^\d+(\.\d+)?(g|kg|ml|l|cups?|tbsp|tsp|oz|pounds?|lbs?)?/i, '').trim();
                 
                 const itemDiv = document.createElement('div');
-                itemDiv.className = 'ingredient-item reveal';
+                itemDiv.className = 'ingredient-item fade-in';
                 itemDiv.innerHTML = `
-                    <span>${ingredient}</span>
+                    <span class="ingredient-name">${ingredient}</span>
                     <button class="alternative-btn" onclick="getAlternative('${cleanedIngredient.replace(/'/g, "\\'")}')">
                         <i class="fas fa-exchange-alt"></i> Alternatives
                     </button>
@@ -773,43 +957,94 @@
                 
                 // Add staggered animation
                 setTimeout(() => {
-                    itemDiv.classList.add('active');
+                    itemDiv.style.opacity = 1;
                 }, 100 + index * 50);
+            });
+            
+            // --- MODIFIED Health Tips Button Logic ---
+            const viewTipsBtn = document.getElementById('viewTipsBtn');
+            const healthTipsContent = document.getElementById('healthTipsContent');
+            const tipsLoading = document.getElementById('tipsLoading');
+            let tipsLoaded = false; // Flag to track if tips have been loaded
+
+            viewTipsBtn.addEventListener('click', async function() {
+                // Toggle visibility if tips are already loaded
+                if (tipsLoaded) {
+                    const isVisible = healthTipsContent.style.display === 'block';
+                    if (isVisible) {
+                        // Hide with animation
+                        anime({
+                            targets: healthTipsContent,
+                            opacity: [1, 0],
+                            translateY: [0, 10],
+                            duration: 300,
+                            easing: 'easeInQuad',
+                            complete: function() {
+                                healthTipsContent.style.display = 'none';
+                                viewTipsBtn.innerHTML = '<i class="fas fa-eye"></i> View Tips';
+                            }
+                        });
+                    } else {
+                        // Show with animation
+                        healthTipsContent.style.display = 'block';
+                        viewTipsBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Tips';
+                        anime({
+                            targets: healthTipsContent,
+                            opacity: [0, 1],
+                            translateY: [10, 0],
+                            duration: 400,
+                            easing: 'easeOutQuad'
+                        });
+                    }
+                    return; // Exit if just toggling
+                }
+
+                // --- Fetch tips if not loaded ---
+                viewTipsBtn.disabled = true;
+                tipsLoading.style.display = 'inline-block';
+                healthTipsContent.innerHTML = ''; // Clear previous content
+                healthTipsContent.style.display = 'block'; // Show container for loading text
+
+                // TODO: Replace '1' with the actual recipe ID from Thymeleaf or URL
+                const recipeId = '1'; 
+
+                try {
+                    const response = await fetch(`/api/recipes/${recipeId}/health-tips`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const tipsText = await response.text();
+                    
+                    // Render fetched tips using markdown-it
+                    healthTipsContent.innerHTML = md.render(tipsText || "No health tips available.");
+                    tipsLoaded = true; // Mark tips as loaded
+                    viewTipsBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Tips'; // Update button text
+                    
+                    // Animate content appearance
+                    anime({
+                        targets: healthTipsContent,
+                        opacity: [0, 1],
+                        translateY: [10, 0],
+                        duration: 400,
+                        easing: 'easeOutQuad'
+                    });
+
+                } catch (error) {
+                    console.error('Error fetching health tips:', error);
+                    healthTipsContent.innerHTML = '<p style="color: var(--error);">Could not load health tips. Please try again later.</p>';
+                    // Keep button as "View Tips" on error, don't set tipsLoaded to true
+                    viewTipsBtn.innerHTML = '<i class="fas fa-eye"></i> View Tips'; 
+                } finally {
+                    // Hide loading indicator and re-enable button regardless of success/failure
+                    tipsLoading.style.display = 'none';
+                    viewTipsBtn.disabled = false;
+                }
             });
             
             // Set up allergy button
             document.getElementById('allergyBtn').addEventListener('click', getAllergySafeSubstitutes);
-            
-            // Reveal animations on scroll
-            function revealOnScroll() {
-                const reveals = document.querySelectorAll('.reveal:not(.active)');
-                
-                reveals.forEach((element, index) => {
-                    const windowHeight = window.innerHeight;
-                    const elementTop = element.getBoundingClientRect().top;
-                    const elementVisible = 100;
-                    
-                    if (elementTop < windowHeight - elementVisible) {
-                        setTimeout(() => {
-                            element.classList.add('active');
-                        }, index * 80);
-                    }
-                });
-            }
-            
-            window.addEventListener('scroll', revealOnScroll);
-            // Initial check for elements in viewport
-            setTimeout(revealOnScroll, 100);
-            
-            // Subtle logo animation
-            anime({
-                targets: '.logo',
-                scale: [
-                    { value: 1.1, duration: 300, easing: 'easeOutQuad' },
-                    { value: 1, duration: 300, easing: 'easeInOutQuad' }
-                ],
-                delay: 300
-            });
         });
         
         // Helper function to format Gemini API responses

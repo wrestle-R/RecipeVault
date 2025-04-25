@@ -6,22 +6,27 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity; // Import ResponseEntity
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PathVariable; // Import GeminiService
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.recipeVault.model.Recipe;
+import com.example.recipeVault.service.GeminiService;
 import com.example.recipeVault.service.RecipeService;
 
 @Controller
 public class RecipeController {
 
     private final RecipeService recipeService;
+    
+    @Autowired // Inject GeminiService
+    private GeminiService geminiService;
     
     @Autowired
     public RecipeController(RecipeService recipeService) {
@@ -82,5 +87,24 @@ public class RecipeController {
     @ResponseBody
     public String getAllergySubstitutes(@RequestParam String ingredient, @RequestParam String allergies) {
         return recipeService.getAllergySafeSubstitutes(ingredient, allergies);
+    }
+
+    // --- NEW ENDPOINT for Health Tips ---
+    @GetMapping("/api/recipes/{id}/health-tips")
+    @ResponseBody
+    public ResponseEntity<String> getHealthTips(@PathVariable Long id) {
+        Optional<Recipe> recipeOpt = recipeService.getRecipeById(id);
+        if (recipeOpt.isPresent()) {
+            Recipe recipe = recipeOpt.get();
+            // Construct details string for the prompt
+            String recipeDetails = "Recipe Title: " + recipe.getTitle() + "\n" +
+                                   "Ingredients: " + recipe.getIngredients() + "\n" +
+                                   "Instructions: " + recipe.getInstructions(); // Consider if instructions are needed/too long
+            
+            String tips = geminiService.getHealthTips(recipeDetails);
+            return ResponseEntity.ok(tips);
+        } else {
+            return ResponseEntity.notFound().build(); // Return 404 if recipe not found
+        }
     }
 }
