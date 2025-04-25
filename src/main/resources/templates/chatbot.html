@@ -137,7 +137,7 @@
         
         .tagline {
             font-size: 0.85rem;
-            color: var(--text-secondary);
+            color: var (--text-secondary);
             font-weight: 400;
             margin-top: 0.2rem;
             letter-spacing: 0.01em;
@@ -645,17 +645,74 @@
         .markdown-content li {
             margin-bottom: 0.5em;
         }
+
+        /* Chat interface styles */
+        .chat-container {
+            display: none;
+            margin-top: 2rem;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            max-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            padding: 2rem;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 400px;
+        }
+
+        .chat-message {
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s ease-out forwards;
+            max-width: 85%;
+        }
+
+        .chat-message.ai {
+            margin-right: auto;
+            padding: 1.5rem;
+            background: var(--background-light);
+            border-radius: var(--card-radius);
+            border: 1px solid var(--border);
+        }
+
+        .chat-message.user {
+            margin-left: auto;
+            text-align: right;
+            color: var(--text-secondary);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .typing-indicator i {
+            margin-right: 0.5rem;
+            animation: bounce 0.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
     </style>
 </head>
 <body>
     <header>
         <div class="header-content">
             <div class="logo-container">
-                <a href="/" class="btn" style="text-decoration: none; color: inherit;">
-                    <i class="fas fa-arrow-left"></i>
-                    <span style="margin-left: 0.5rem;">Back to Recipes</span>
-                </a>
-                <div class="logo" style="margin-left: 1rem;"><i class="fas fa-robot"></i></div>
+                <div class="logo"><i class="fas fa-robot"></i></div>
                 <div>
                     <h1 class="brand">AI Food Assistant</h1>
                     <p class="tagline">Smart Recipe Recommendations</p>
@@ -670,6 +727,11 @@
     </header>
 
     <div class="container">
+        <a href="/" class="btn" style="margin-bottom: 2rem; color: var(--text); text-decoration: none;">
+            <i class="fas fa-arrow-left"></i>
+            <span style="margin-left: 0.5rem;">Return to Dashboard</span>
+        </a>
+        
         <form id="recommendationForm" class="recommendation-form reveal">
             <h2 class="form-title">
                 <i class="fas fa-utensils"></i> Get Personalized Food Recommendations
@@ -679,11 +741,11 @@
                 <label class="form-label">What type of meal are you looking for?</label>
                 <select name="mealType" class="form-select" required>
                     <option value="">Select meal type...</option>
-                    <option value="breakfast">🍳 Breakfast</option>
-                    <option value="lunch">🍱 Lunch</option>
-                    <option value="dinner">🍝 Dinner</option>
-                    <option value="snack">🍪 Snack</option>
-                    <option value="dessert">🍰 Dessert</option>
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Snack</option>
+                    <option value="dessert">Dessert</option>
                 </select>
             </div>
 
@@ -691,12 +753,12 @@
                 <label class="form-label">Dietary Preferences</label>
                 <select name="dietaryPreferences" class="form-select" required>
                     <option value="">Select preference...</option>
-                    <option value="vegetarian">🌱 Vegetarian</option>
-                    <option value="non-vegetarian">🥩 Non-vegetarian</option>
-                    <option value="dairy-free">🥛 Dairy-Free</option>
-                    <option value="nut-free">🥜 Nut-Free</option>
-                    <option value="gluten-free">🌾 Gluten-Free</option>
-                    <option value="vegan">🥬 Vegan</option>
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="non-vegetarian">Non-vegetarian</option>
+                    <option value="dairy-free">Dairy-Free</option>
+                    <option value="nut-free">Nut-Free</option>
+                    <option value="gluten-free">Gluten-Free</option>
+                    <option value="vegan">Vegan</option>
                 </select>
             </div>
 
@@ -704,9 +766,9 @@
                 <label class="form-label">How would you describe your current hunger level?</label>
                 <select name="hungerLevel" class="form-select" required>
                     <option value="">Select hunger level...</option>
-                    <option value="light">😐 Light</option>
-                    <option value="moderate">🙂 Moderate</option>
-                    <option value="very-hungry">🤤 Very hungry</option>
+                    <option value="light">Light</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="very-hungry">Very Hungry</option>
                 </select>
             </div>
 
@@ -714,9 +776,9 @@
                 <label class="form-label">How much time can you spend preparing your food?</label>
                 <select name="prepTime" class="form-select" required>
                     <option value="">Select preparation time...</option>
-                    <option value="quick">⏱ Under 10 mins</option>
-                    <option value="medium">⌛ 10–30 mins</option>
-                    <option value="long">🕰 30+ mins</option>
+                    <option value="quick">Under 10 mins</option>
+                    <option value="medium">10–30 mins</option>
+                    <option value="long">30+ mins</option>
                 </select>
             </div>
 
@@ -729,10 +791,10 @@
                 <label class="form-label">What's your current fitness goal?</label>
                 <select name="fitnessGoal" class="form-select" required>
                     <option value="">Select fitness goal...</option>
-                    <option value="muscle-gain">💪 Muscle Gain</option>
-                    <option value="fat-loss">🏃 Fat Loss</option>
-                    <option value="maintenance">⚖️ Maintenance</option>
-                    <option value="clean-eating">🥗 Just eating clean</option>
+                    <option value="muscle-gain">Muscle Gain</option>
+                    <option value="fat-loss">Fat Loss</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="clean-eating">Clean Eating</option>
                 </select>
             </div>
 
@@ -740,13 +802,13 @@
                 <label class="form-label">What kind of cuisine do you prefer right now?</label>
                 <select name="cuisine" class="form-select" required>
                     <option value="">Select cuisine...</option>
-                    <option value="indian">🍛 Indian</option>
-                    <option value="italian">🍕 Italian</option>
-                    <option value="chinese">🥡 Chinese</option>
-                    <option value="mexican">🌮 Mexican</option>
-                    <option value="american">🍔 American</option>
-                    <option value="middle-eastern">🥙 Middle Eastern</option>
-                    <option value="any">🥗 No Preference</option>
+                    <option value="indian">Indian</option>
+                    <option value="italian">Italian</option>
+                    <option value="chinese">Chinese</option>
+                    <option value="mexican">Mexican</option>
+                    <option value="american">American</option>
+                    <option value="middle-eastern">Middle Eastern</option>
+                    <option value="any">No Preference</option>
                 </select>
             </div>
 
@@ -754,10 +816,10 @@
                 <label class="form-label">Do you have access to cooking equipment?</label>
                 <select name="equipment" class="form-select" required>
                     <option value="">Select available equipment...</option>
-                    <option value="stove">🍳 Stove</option>
-                    <option value="oven">🔥 Oven</option>
-                    <option value="microwave">⚡ Microwave</option>
-                    <option value="no-cooking">🍽 No Cooking Needed</option>
+                    <option value="stove">Stove</option>
+                    <option value="oven">Oven</option>
+                    <option value="microwave">Microwave</option>
+                    <option value="no-cooking">No Cooking Needed</option>
                 </select>
             </div>
 
@@ -771,16 +833,27 @@
             <p>Crafting your perfect meal recommendation...</p>
         </div>
 
-        <div class="recommendation-result markdown-content"></div>
+        <div class="chat-container">
+            <div class="chat-messages"></div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" placeholder="Ask a follow-up question..." disabled>
+                <button class="send-btn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('recommendationForm');
             const loader = document.querySelector('.loader');
-            const resultDiv = document.querySelector('.recommendation-result');
             const md = window.markdownit();
             const themeToggle = document.getElementById('themeToggle');
+            const chatContainer = document.querySelector('.chat-container');
+            const chatMessages = document.querySelector('.chat-messages');
+            const chatInput = document.querySelector('.chat-input');
+            const sendBtn = document.querySelector('.send-btn');
 
             // Theme toggle functionality
             const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -829,9 +902,9 @@
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Show loader
+                // Show loader and hide chat
                 loader.style.display = 'block';
-                resultDiv.style.display = 'none';
+                chatContainer.style.display = 'none';
                 
                 // Collect form data
                 const formData = new FormData(form);
@@ -851,24 +924,138 @@
 
                     const data = await response.text();
                     
-                    // Hide loader and show results
+                    // Hide loader and show chat
                     loader.style.display = 'none';
-                    resultDiv.style.display = 'block';
-                    resultDiv.innerHTML = md.render(data || 'No recommendation available');
-                    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    chatContainer.style.display = 'block';
+                    
+                    // Clear previous messages
+                    chatMessages.innerHTML = '';
+                    
+                    // Add initial recommendation
+                    addMessage(data, true);
+                    
+                    // Enable chat input
+                    chatInput.disabled = false;
+                    sendBtn.disabled = false;
 
-                    // Animate the result appearance
-                    anime({
-                        targets: '.recommendation-result',
-                        opacity: [0, 1],
-                        translateY: [20, 0],
-                        duration: 500,
-                        easing: 'easeOutQuad'
-                    });
+                    // Scroll to chat
+                    chatContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                 } catch (error) {
                     console.error('Error:', error);
-                    resultDiv.innerHTML = 'An error occurred while getting recommendations.';
+                    loader.style.display = 'none';
+                    addMessage('An error occurred while getting recommendations.', true);
+                }
+            });
+
+            let conversationHistory = [];
+
+            // Modify the addMessage function
+            function addMessage(content, isAi = false) {
+                // Add message to history
+                conversationHistory.push({
+                    role: isAi ? 'assistant' : 'user',
+                    content: content
+                });
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${isAi ? 'ai' : 'user'}`;
+                
+                if (isAi) {
+                    const formattedContent = md.render(content);
+                    messageDiv.innerHTML = formattedContent;
+                    
+                    // Add action buttons for AI responses if not a follow-up
+                    if (!content.includes('Ingredients:') && !content.includes('Steps:') && !content.includes('Nutrition:')) {
+                        const actions = document.createElement('div');
+                        actions.className = 'chat-actions';
+                        actions.innerHTML = `
+                            <button class="chat-action-btn" data-action="ingredients">
+                                <i class="fas fa-list"></i> Ingredients
+                            </button>
+                            <button class="chat-action-btn" data-action="steps">
+                                <i class="fas fa-tasks"></i> Steps
+                            </button>
+                            <button class="chat-action-btn" data-action="nutrition">
+                                <i class="fas fa-heartbeat"></i> Nutrition
+                            </button>
+                        `;
+                        messageDiv.appendChild(actions);
+                    }
+                } else {
+                    messageDiv.textContent = content;
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Show typing indicator
+            function showTypingIndicator() {
+                const indicator = document.createElement('div');
+                indicator.className = 'typing-indicator';
+                indicator.innerHTML = '<i class="fas fa-circle"></i> AI is typing...';
+                chatMessages.appendChild(indicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return indicator;
+            }
+
+            // Modify handleFollowUp function
+            async function handleFollowUp(question) {
+                addMessage(question);
+                
+                const indicator = showTypingIndicator();
+                
+                try {
+                    const response = await fetch('/api/followup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            question,
+                            history: conversationHistory 
+                        })
+                    });
+                    
+                    indicator.remove();
+                    const data = await response.text();
+                    addMessage(data, true);
+                } catch (error) {
+                    indicator.remove();
+                    console.error('Error:', error);
+                    addMessage('Sorry, I encountered an error processing your question.', true);
+                }
+            }
+
+            // Handle send button and Enter key
+            sendBtn.addEventListener('click', () => {
+                const question = chatInput.value.trim();
+                if (question) {
+                    handleFollowUp(question);
+                    chatInput.value = '';
+                }
+            });
+            
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
+            
+            // Handle action buttons
+            chatMessages.addEventListener('click', (e) => {
+                const actionBtn = e.target.closest('.chat-action-btn');
+                if (actionBtn) {
+                    const action = actionBtn.dataset.action;
+                    const questions = {
+                        ingredients: 'What are the ingredients needed?',
+                        steps: 'What are the steps to prepare this?',
+                        nutrition: 'What is the nutritional information?'
+                    };
+                    
+                    handleFollowUp(questions[action]);
                 }
             });
 

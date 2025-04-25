@@ -1,9 +1,12 @@
 package com.example.recipeVault.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -34,5 +37,12 @@ public class RecipeRecommendationController {
             mealType, dietaryPreferences, hungerLevel, prepTime,
             ingredients, fitnessGoal, cuisine, equipment
         );
+    }
+
+    @PostMapping("/api/followup")
+    @ResponseBody
+    public String handleFollowUp(@RequestBody Map<String, String> request) {
+        String question = request.get("question");
+        return recommendationService.getFollowUpResponse(question);
     }
 }

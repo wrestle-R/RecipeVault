@@ -39,4 +39,17 @@ public class RecommendationService {
             return "Error generating recommendation: " + e.getMessage();
         }
     }
+
+    public String getFollowUpResponse(String question) {
+        try {
+            String prompt = String.format(
+                "As a follow-up to the previous recipe recommendation, please answer this question: %s\n" +
+                "Provide a clear, detailed response formatted in markdown.",
+                question
+            );
+            return geminiService.getAIResponse(prompt);
+        } catch (Exception e) {
+            return "Error generating response: " + e.getMessage();
+        }
+    }
 }
