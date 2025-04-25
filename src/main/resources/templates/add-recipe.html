@@ -4,116 +4,720 @@
     <title>Add Recipe - RecipeVault</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+        /* Base Styles */
+        :root {
+            --primary: #2c7be5;
+            --primary-dark: #1a68d1;
+            --primary-light: #5995e8;
+            --secondary: #33b07c;
+            --background-dark: #121212;
+            --background: #1e1e1e;
+            --background-light: #2d2d2d;
+            --card-bg: #262626;
+            --text: #e9ecef;
+            --text-muted: #adb5bd;
+            --text-secondary: #83888e;
+            --border: #383838;
+            --error: #e63757;
+            --success: #33b07c;
+            --card-radius: 8px;
+            --transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.18);
+        }
+        
+        /* Light theme variables */
+        [data-theme="light"] {
+            --primary: #1e62c0;
+            --primary-dark: #1754a3;
+            --primary-light: #4785d6;
+            --secondary: #2a9363;
+            --background-dark: #e9ecef;
+            --background: #f8f9fa;
+            --background-light: #ffffff;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --text-secondary: #495057;
+            --border: #dee2e6;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--background-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--background-light);
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #505050;
+        }
+        
+        /* Container */
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem;
         }
+        
+        /* Header */
         header {
-            background-color: #1e1e1e;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background: var(--background-dark);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
-        h1 {
-            color: #bb86fc;
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.6rem;
+            color: var(--primary);
+            margin-right: 0.8rem;
+            transform-origin: center;
+            transition: color 0.3s ease;
+        }
+        
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text);
             margin: 0;
+            letter-spacing: -0.02em;
+            transition: color 0.3s ease;
         }
-        form {
-            background-color: #1e1e1e;
-            border-radius: 10px;
-            padding: 30px;
-            margin-top: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        
+        .tagline {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 0.2rem;
+            letter-spacing: 0.01em;
+            transition: color 0.3s ease;
         }
+        
+        /* Form styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            margin-top: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .card-header {
+            background: rgba(44, 123, 229, 0.1);
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        
+        .card-title i {
+            color: var(--primary);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
         }
-        label {
+        
+        .form-label {
             display: block;
-            margin-bottom: 8px;
-            color: #bb86fc;
-            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 0.9rem;
         }
-        input, textarea, select {
+        
+        .form-control {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #333;
-            border-radius: 5px;
-            background-color: #2d2d2d;
-            color: #e0e0e0;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--background-light);
+            color: var(--text);
             font-family: inherit;
-            box-sizing: border-box;
+            font-size: 0.95rem;
+            transition: var(--transition);
         }
-        textarea {
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
+        }
+        
+        textarea.form-control {
             min-height: 150px;
             resize: vertical;
         }
-        button {
-            background-color: #bb86fc;
-            color: #121212;
+        
+        .form-text {
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 5px;
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 6px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #a370dd;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #03dac6;
+            transition: var(--transition);
             text-decoration: none;
+            font-size: 0.9rem;
+            gap: 0.5rem;
+            letter-spacing: 0.01em;
         }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(44, 123, 229, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 10px rgba(44, 123, 229, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--background-light);
+            color: var(--primary);
+            border-color: var(--primary-light);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            transition: var(--transition);
+        }
+        
         .back-link:hover {
-            text-decoration: underline;
+            color: var(--primary);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--background-dark);
+            padding: 1.5rem;
+            margin-top: 4rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.8rem;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--background-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 36px;
+            width: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        /* Tag input styling */
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            min-height: 36px;
+            padding: 0.25rem 0;
+        }
+        
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background-color: rgba(44, 123, 229, 0.15);
+            color: var(--primary);
+            font-size: 0.8rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .tag-item .remove {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        
+        .tag-item .remove:hover {
+            opacity: 1;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* For animations on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 0.5rem 0;
+            }
+            
+            .logo-container {
+                justify-content: center;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Add New Recipe</h1>
+        <div class="header-content">
+            <div class="logo-container">
+                <div class="logo"><i class="fas fa-book-bookmark"></i></div>
+                <div>
+                    <h1 class="brand">RecipeVault</h1>
+                    <p class="tagline">Professional Recipe Management with AI</p>
+                </div>
+            </div>
+            <div>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
     </header>
 
     <div class="container">
-        <form th:action="@{/add-recipe}" th:object="${recipe}" method="post">
-            <div class="form-group">
-                <label for="title">Recipe Title</label>
-                <input type="text" id="title" name="title" th:field="*{title}" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="ingredients">Ingredients (one per line)</label>
-                <textarea id="ingredients" name="ingredients" th:field="*{ingredients}" 
-                          placeholder="Example:&#10;2 eggs&#10;1 cup flour&#10;2 tbsp sugar" required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="instructions">Instructions</label>
-                <textarea id="instructions" name="instructions" th:field="*{instructions}" required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="tagsInput">Tags (comma separated)</label>
-                <input type="text" id="tagsInput" name="tagsInput" placeholder="vegetarian, low-carb, gluten-free">
-            </div>
-            
-            <button type="submit">Save Recipe</button>
-        </form>
+        <a th:href="@{/}" class="back-link reveal">
+            <i class="fas fa-arrow-left"></i> Back to Recipes
+        </a>
         
-        <a th:href="@{/}" class="back-link">← Back to Recipes</a>
+        <div class="card reveal">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-plus-circle"></i> Add New Recipe
+                </h2>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/add-recipe}" th:object="${recipe}" method="post" id="recipeForm">
+                    <div class="form-group">
+                        <label for="title" class="form-label">Recipe Title</label>
+                        <input type="text" id="title" name="title" th:field="*{title}" 
+                               class="form-control" required 
+                               placeholder="Enter a descriptive title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ingredients" class="form-label">Ingredients</label>
+                        <textarea id="ingredients" name="ingredients" th:field="*{ingredients}" 
+                                  class="form-control" required 
+                                  placeholder="Enter each ingredient on a new line:&#10;2 eggs&#10;1 cup flour&#10;2 tbsp sugar"></textarea>
+                        <div class="form-text">List each ingredient on a new line, including quantities.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="instructions" class="form-label">Instructions</label>
+                        <textarea id="instructions" name="instructions" th:field="*{instructions}" 
+                                 class="form-control" required 
+                                 placeholder="Describe the preparation steps in detail..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tagsInput" class="form-label">Tags</label>
+                        <input type="text" id="tagsInput" class="form-control" 
+                               placeholder="Type a tag and press Enter (e.g., vegetarian, dessert, quick)"
+                               autocomplete="off">
+                        <input type="hidden" name="tagsInput" id="tagsHidden">
+                        <div class="form-text">Add tags to categorize your recipe.</div>
+                        <div class="tag-container" id="tagContainer"></div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="clearFormBtn">
+                            <i class="fas fa-undo"></i> Clear Form
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Recipe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">© 2025 RecipeVault - Enterprise Recipe Management Solution</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Terms</a>
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Check for saved theme preference or use preferred color scheme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else {
+                // Use system preference as default
+                const systemTheme = prefersDarkScheme.matches ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', systemTheme);
+                updateThemeIcon(systemTheme);
+            }
+            
+            // Update icon based on current theme
+            function updateThemeIcon(theme) {
+                const icon = themeToggle.querySelector('i');
+                if (theme === 'light') {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            }
+            
+            // Toggle theme when button is clicked
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    // Apply theme change with animation
+                    anime({
+                        targets: 'body',
+                        opacity: [1, 0.96, 1],
+                        duration: 300,
+                        easing: 'easeInOutQuad',
+                        begin: function() {
+                            document.body.setAttribute('data-theme', newTheme);
+                            localStorage.setItem('theme', newTheme);
+                            updateThemeIcon(newTheme);
+                        }
+                    });
+                });
+            }
+            
+            // Reveal animations on scroll
+            function revealOnScroll() {
+                const reveals = document.querySelectorAll('.reveal');
+                
+                reveals.forEach((element, index) => {
+                    const windowHeight = window.innerHeight;
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 100;
+                    
+                    if (elementTop < windowHeight - elementVisible) {
+                        element.classList.add('active');
+                        element.style.transitionDelay = `${index * 0.08}s`;
+                    }
+                });
+            }
+            
+            window.addEventListener('scroll', revealOnScroll);
+            // Initial check for elements in viewport
+            setTimeout(revealOnScroll, 100);
+            
+            // Enhanced Tag Management
+            const tagsInput = document.getElementById('tagsInput');
+            const tagContainer = document.getElementById('tagContainer');
+            const tagsHidden = document.getElementById('tagsHidden');
+            let tags = [];
+            
+            // Add tag when Enter is pressed
+            tagsInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addTag();
+                }
+            });
+            
+            // Add tag function
+            function addTag() {
+                const tag = tagsInput.value.trim();
+                
+                if (tag && !tags.includes(tag)) {
+                    tags.push(tag);
+                    updateTags();
+                    tagsInput.value = '';
+                    
+                    // Animate the new tag
+                    const lastTag = tagContainer.lastElementChild;
+                    if (lastTag) {
+                        anime({
+                            targets: lastTag,
+                            translateX: [10, 0],
+                            opacity: [0, 1],
+                            duration: 300,
+                            easing: 'easeOutQuad'
+                        });
+                    }
+                }
+            }
+            
+            // Remove tag function
+            function removeTag(index) {
+                tags.splice(index, 1);
+                updateTags();
+            }
+            
+            // Update tags UI and hidden input
+            function updateTags() {
+                tagContainer.innerHTML = '';
+                tagsHidden.value = tags.join(',');
+                
+                tags.forEach((tag, index) => {
+                    const tagElement = document.createElement('div');
+                    tagElement.classList.add('tag-item');
+                    tagElement.innerHTML = `
+                        <span>${tag}</span>
+                        <span class="remove">×</span>
+                    `;
+                    
+                    tagElement.querySelector('.remove').addEventListener('click', function() {
+                        anime({
+                            targets: tagElement,
+                            translateX: [0, -10],
+                            opacity: [1, 0],
+                            duration: 200,
+                            easing: 'easeOutQuad',
+                            complete: function() {
+                                removeTag(index);
+                            }
+                        });
+                    });
+                    
+                    tagContainer.appendChild(tagElement);
+                });
+            }
+            
+            // Clear form functionality
+            const clearFormBtn = document.getElementById('clearFormBtn');
+            const recipeForm = document.getElementById('recipeForm');
+            
+            clearFormBtn.addEventListener('click', function() {
+                // Animate form clearing
+                anime({
+                    targets: '.form-control',
+                    opacity: [1, 0.5, 1],
+                    duration: 500,
+                    easing: 'easeInOutQuad',
+                    begin: function() {
+                        recipeForm.reset();
+                        tags = [];
+                        updateTags();
+                    }
+                });
+            });
+            
+            // Form submission animation
+            recipeForm.addEventListener('submit', function(e) {
+                const formControls = document.querySelectorAll('.form-control');
+                const submitBtn = document.querySelector('button[type="submit"]');
+                
+                // Only if all required fields are filled
+                if (recipeForm.checkValidity()) {
+                    e.preventDefault();
+                    
+                    // Add any tags that might be in the input but not yet added
+                    if (tagsInput.value.trim()) {
+                        addTag();
+                    }
+                    
+                    anime({
+                        targets: submitBtn,
+                        scale: [1, 0.95, 1],
+                        backgroundColor: ['#2c7be5', '#33b07c'],
+                        duration: 600,
+                        easing: 'easeInOutQuad',
+                        complete: function() {
+                            // Submit the form after animation
+                            recipeForm.submit();
+                        }
+                    });
+                }
+            });
+            
+            // Subtle animation for inputs when focused
+            const formControls = document.querySelectorAll('.form-control');
+            formControls.forEach(control => {
+                control.addEventListener('focus', function() {
+                    anime({
+                        targets: this,
+                        boxShadow: [
+                            '0 0 0 3px rgba(44, 123, 229, 0)',
+                            '0 0 0 3px rgba(44, 123, 229, 0.2)'
+                        ],
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,22 +1,28 @@
 package com.example.recipeVault.controller;
 
-import com.example.recipeVault.model.Recipe;
-import com.example.recipeVault.service.RecipeService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.example.recipeVault.model.Recipe;
+import com.example.recipeVault.service.RecipeService;
+
 @Controller
 public class RecipeController {
 
     private final RecipeService recipeService;
-
+    
     @Autowired
     public RecipeController(RecipeService recipeService) {
         this.recipeService = recipeService;

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class GeminiService {
 
     // Using the API key directly instead of loading from properties
-    private final String apiKey = "your-key-here"; // Replace with your actual
+    private final String apiKey = "AIzaSyARE0ml4Vlijfl9JN97WXDo4s4OU6K2w4A";
     
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();

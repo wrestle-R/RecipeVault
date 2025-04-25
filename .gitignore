@@ -31,3 +31,47 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Java ###
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+### Maven ###
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+### Spring Boot ###
+*#
+*.sw?
+.#*
+.*.md.html
+.DS_Store
+.attach_pid*
+.gradle
+.metadata
+.recommenders
+/code
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### OS specific ###
+.DS_Store
+Thumbs.db

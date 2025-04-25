@@ -1,383 +1,929 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <title th:text="${recipe.title} + ' - RecipeVault'">Recipe - RecipeVault</title>
+    <title>Recipe Details - RecipeVault</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sanitize-html@2.9.0/dist/sanitize-html.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+        /* Base Styles */
+        :root {
+            --primary: #2c7be5;
+            --primary-dark: #1a68d1;
+            --primary-light: #5995e8;
+            --secondary: #33b07c;
+            --background-dark: #121212;
+            --background: #1e1e1e;
+            --background-light: #2d2d2d;
+            --card-bg: #262626;
+            --text: #e9ecef;
+            --text-muted: #adb5bd;
+            --text-secondary: #83888e;
+            --border: #383838;
+            --error: #e63757;
+            --success: #33b07c;
+            --card-radius: 8px;
+            --transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.18);
+        }
+        
+        /* Light theme variables */
+        [data-theme="light"] {
+            --primary: #1e62c0;
+            --primary-dark: #1754a3;
+            --primary-light: #4785d6;
+            --secondary: #2a9363;
+            --background-dark: #e9ecef;
+            --background: #f8f9fa;
+            --background-light: #ffffff;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --text-secondary: #495057;
+            --border: #dee2e6;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        header {
-            background-color: #1e1e1e;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        h1 {
-            color: #bb86fc;
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
             margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .recipe-details {
-            background-color: #1e1e1e;
-            border-radius: 10px;
-            padding: 30px;
-            margin-top: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
         }
-        .section {
-            margin-bottom: 30px;
+        ::-webkit-scrollbar-track {
+            background: var(--background-dark);
         }
-        h2 {
-            color: #bb86fc;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-            margin-top: 0;
+        ::-webkit-scrollbar-thumb {
+            background: var(--background-light);
+            border-radius: 6px;
         }
-        .tag {
-            display: inline-block;
-            background-color: #3700b3;
-            color: #fff;
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 15px;
-            margin-right: 5px;
-            margin-bottom: 5px;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #505050;
         }
-        .ingredients-list {
-            white-space: pre-line;
-            line-height: 1.6;
+        
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
         }
-        .instructions {
-            white-space: pre-line;
-            line-height: 1.6;
+        
+        /* Header */
+        header {
+            background: var(--background-dark);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #03dac6;
-            text-decoration: none;
-            font-size: 16px;
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        .ai-section {
-            background-color: rgba(187, 134, 252, 0.1);
-            border-left: 4px solid #bb86fc;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 0 5px 5px 0;
-        }
-        .ai-title {
-            color: #bb86fc;
-            font-weight: bold;
+        
+        .logo-container {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
         }
-        .ai-title::before {
-            content: "🤖";
-            margin-right: 8px;
+        
+        .logo {
+            font-size: 1.6rem;
+            color: var(--primary);
+            margin-right: 0.8rem;
+            transform-origin: center;
+            transition: color 0.3s ease;
         }
+        
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0;
+            letter-spacing: -0.02em;
+            transition: color 0.3s ease;
+        }
+        
+        .tagline {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 0.2rem;
+            letter-spacing: 0.01em;
+            transition: color 0.3s ease;
+        }
+        
+        /* Recipe Details */
+        .recipe-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .recipe-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            transition: color 0.3s ease;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: rgba(44, 123, 229, 0.15);
+            color: var(--primary);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        [data-theme="light"] .tag {
+            background-color: rgba(44, 123, 229, 0.1);
+        }
+        
+        .tag:hover {
+            background-color: rgba(44, 123, 229, 0.25);
+        }
+        
+        .recipe-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+        
+        .section {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-title {
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title i {
+            font-size: 1.2rem;
+        }
+        
+        .ingredients-list, .instructions {
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        
+        /* AI Sections */
+        .ai-section {
+            background-color: rgba(44, 123, 229, 0.08);
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-left: 4px solid var(--primary);
+            transition: background-color 0.3s ease;
+        }
+        
+        [data-theme="light"] .ai-section {
+            background-color: rgba(44, 123, 229, 0.05);
+        }
+        
+        .ai-title {
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .ai-title i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Ingredient Alternatives */
         .ingredient-item {
-            margin-bottom: 8px;
-            position: relative;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background-color: var(--background-light);
+            border-radius: 6px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .ingredient-item:hover .alternative-btn {
+        
+        .ingredient-item:hover {
+            background-color: rgba(44, 123, 229, 0.1);
+        }
+        
+        .alternative-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+        
+        .alternative-btn:hover {
+            background: var(--primary-dark);
             opacity: 1;
         }
-        .alternative-btn {
-            background: none;
-            border: none;
-            color: #bb86fc;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
+        
+        /* Allergy Form */
         .allergy-form {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #2d2d2d;
-            border-radius: 5px;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background-color: var(--background-light);
+            border-radius: var(--card-radius);
+            transition: background-color 0.3s ease;
         }
-        .allergy-form input {
-            padding: 8px;
-            border: 1px solid #444;
-            background-color: #333;
-            color: #e0e0e0;
-            border-radius: 4px;
-            margin-right: 10px;
+        
+        .allergy-form h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            font-weight: 600;
         }
-        .allergy-form button {
-            padding: 8px 12px;
-            background-color: #bb86fc;
-            color: #121212;
+        
+        .form-group {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .form-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--background);
+            color: var(--text);
+            outline: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 1px rgba(44, 123, 229, 0.2);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-weight: 500;
             cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-size: 0.9rem;
+            gap: 0.5rem;
+            letter-spacing: 0.01em;
         }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 10px rgba(44, 123, 229, 0.4);
+            transform: translateY(-1px);
+        }
+        
         .loading {
             display: inline-block;
-            margin-left: 10px;
+            margin-left: 0.5rem;
             font-style: italic;
-            color: #bb86fc;
+            color: var(--primary);
+            font-size: 0.9rem;
         }
-        #alternativeResults, #allergyResults {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #2d2d2d;
-            border-radius: 5px;
-            white-space: pre-line;
+        
+        .results-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: var(--background);
+            border-radius: 6px;
             display: none;
+            border: 1px solid var(--border);
         }
-        /* Add styles for markdown formatting */
-        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
-            color: #bb86fc;
-            margin-top: 1em;
+        
+        /* Back Button */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 2rem;
+            transition: var(--transition);
+        }
+        
+        .back-link:hover {
+            color: var(--primary-dark);
+            transform: translateX(-3px);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--background-dark);
+            padding: 1.5rem;
+            margin-top: 4rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.8rem;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--background-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 36px;
+            width: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        /* Markdown content styling */
+        .markdown-content h1, 
+        .markdown-content h2, 
+        .markdown-content h3 {
+            color: var(--primary);
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+        }
+        
+        .markdown-content ul, 
+        .markdown-content ol {
+            padding-left: 1.5em;
+            margin-bottom: 1em;
+        }
+        
+        .markdown-content li {
             margin-bottom: 0.5em;
         }
-        .markdown-content ul, .markdown-content ol {
-            padding-left: 1.5em;
-        }
-        .markdown-content li {
-            margin-bottom: 0.3em;
-        }
-        .markdown-content code {
-            background-color: #2d2d2d;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        .markdown-content pre {
-            background-color: #2d2d2d;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        .markdown-content blockquote {
-            border-left: 4px solid #666;
-            margin-left: 0;
-            padding-left: 10px;
-            color: #aaa;
-        }
+        
         .markdown-content p {
             margin-bottom: 1em;
         }
+        
         .markdown-content a {
-            color: #03dac6;
+            color: var(--primary);
             text-decoration: none;
         }
+        
         .markdown-content a:hover {
             text-decoration: underline;
         }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 0.5rem 0;
+            }
+            
+            .logo-container {
+                justify-content: center;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .recipe-title {
+                font-size: 1.8rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .form-group {
+                flex-direction: column;
+            }
+            
+            .form-input {
+                width: 100%;
+            }
+        }
     </style>
-    <!-- Replace with updated markdown library and add sanitize-html for safety -->
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sanitize-html@2.9.0/dist/sanitize-html.min.js"></script>
 </head>
 <body>
     <header>
-        <h1 th:text="${recipe.title}">Recipe Title</h1>
-        <div th:if="${recipe.tags != null && !recipe.tags.empty}">
-            <span class="tag" th:each="tag : ${recipe.tags}" th:text="${tag}">Tag</span>
+        <div class="header-content">
+            <div class="logo-container">
+                <div class="logo"><i class="fas fa-book-bookmark"></i></div>
+                <div>
+                    <h1 class="brand">RecipeVault</h1>
+                    <p class="tagline">Professional Recipe Management with AI</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
+                <i class="fas fa-sun"></i>
+            </button>
         </div>
     </header>
 
     <div class="container">
-        <div class="recipe-details">
+        <div class="recipe-header reveal">
+            <h1 class="recipe-title" id="recipeTitle">Homemade Pasta Carbonara</h1>
+            <div class="tags-container" id="recipeTags">
+                <span class="tag">Italian</span>
+                <span class="tag">Pasta</span>
+                <span class="tag">Dinner</span>
+            </div>
+        </div>
+
+        <div class="recipe-card reveal">
             <div class="section">
-                <h2>Ingredients</h2>
-                <div class="ingredients-list markdown-content" id="ingredientsList" th:attr="data-content=${recipe.ingredients}">Ingredients go here</div>
+                <h2 class="section-title"><i class="fas fa-list"></i> Ingredients</h2>
+                <div class="ingredients-list markdown-content" id="ingredientsList">
+                    Loading ingredients...
+                </div>
             </div>
             
             <div class="section">
-                <h2>Instructions</h2>
-                <div class="instructions markdown-content" id="instructionsList" th:attr="data-content=${recipe.instructions}">Instructions go here</div>
-            </div>
-            
-            <div class="ai-section">
-                <div class="ai-title">Gemini Health Tips</div>
-                <div th:text="${healthTips}">Health tips will appear here</div>
-            </div>
-            
-            <div class="ai-section">
-                <div class="ai-title">Ingredient Alternatives</div>
-                <p>Click on any ingredient to see alternatives:</p>
-                
-                <div id="processedIngredients"></div>
-                <div id="alternativeResults"></div>
-                
-                <div class="allergy-form">
-                    <h3>Get Allergy-Safe Substitutes</h3>
-                    <input type="text" id="ingredient" placeholder="Enter ingredient">
-                    <input type="text" id="allergies" placeholder="Enter allergies (e.g., nuts, dairy)">
-                    <button onclick="getAllergySafeSubstitutes()">Get Substitutes</button>
-                    <span id="allergyLoading" class="loading" style="display:none;">Thinking...</span>
-                    <div id="allergyResults"></div>
+                <h2 class="section-title"><i class="fas fa-utensils"></i> Instructions</h2>
+                <div class="instructions markdown-content" id="instructionsList">
+                    Loading instructions...
                 </div>
             </div>
         </div>
         
-        <a th:href="@{/}" class="back-link">← Back to Recipes</a>
-    </div>
-    
-    <script th:inline="javascript">
-        // Initialize markdown-it with better options
-        const md = window.markdownit({
-            html: true,        // Enable HTML tags in source
-            breaks: true,      // Convert '\n' in paragraphs into <br>
-            linkify: true,     // Autoconvert URL-like text to links
-            typographer: true  // Enable smartquotes and other typographic replacements
-        });
+        <div class="ai-section reveal">
+            <div class="ai-title"><i class="fas fa-brain"></i> Health Tips</div>
+            <div id="healthTipsContent" class="markdown-content">
+                Loading health tips...
+            </div>
+        </div>
         
+        <div class="recipe-card reveal">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-exchange-alt"></i> Ingredient Alternatives</h2>
+                <p>Select an ingredient to see alternatives:</p>
+                
+                <div id="processedIngredients" class="reveal">
+                    <!-- Ingredient items will be generated here -->
+                </div>
+                
+                <div id="alternativeResults" class="results-container markdown-content">
+                    Select an ingredient to see alternatives.
+                </div>
+                
+                <div class="allergy-form reveal">
+                    <h3>Get Allergy-Safe Substitutes</h3>
+                    <div class="form-group">
+                        <input type="text" id="ingredient" class="form-input" placeholder="Enter ingredient">
+                        <input type="text" id="allergies" class="form-input" placeholder="Enter allergies (e.g., nuts, dairy)">
+                        <button id="allergyBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Get Substitutes
+                        </button>
+                    </div>
+                    <span id="allergyLoading" class="loading" style="display:none;">Thinking...</span>
+                    <div id="allergyResults" class="results-container markdown-content">
+                        Enter an ingredient and allergies to find safe substitutes.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="/" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Recipes
+        </a>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">© 2025 RecipeVault - Enterprise Recipe Management Solution</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Terms</a>
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sample recipe data (in a real app, this would come from the server)
+        const recipeData = {
+            title: "Homemade Pasta Carbonara",
+            tags: ["Italian", "Pasta", "Dinner"],
+            ingredients: `- 400g spaghetti
+- 200g pancetta or guanciale, diced
+- 4 large eggs
+- 100g Pecorino Romano cheese, grated
+- 100g Parmigiano Reggiano, grated
+- 2 cloves garlic, minced
+- Freshly ground black pepper
+- Salt to taste
+- Fresh parsley, chopped (for garnish)`,
+            instructions: `1. Bring a large pot of salted water to a boil. Add the spaghetti and cook until al dente according to package instructions.
+
+2. While the pasta is cooking, heat a large skillet over medium heat. Add the diced pancetta or guanciale and cook until crispy and the fat has rendered, about 8-10 minutes.
+
+3. In a bowl, whisk together the eggs, grated cheeses, and a generous amount of freshly ground black pepper.
+
+4. When the pasta is done, reserve 1 cup of the pasta water, then drain the pasta.
+
+5. Working quickly, add the hot pasta to the skillet with the pancetta. Toss to coat the pasta in the rendered fat.
+
+6. Remove the skillet from the heat and quickly pour in the egg and cheese mixture, stirring constantly to create a creamy sauce. If the sauce is too thick, add a splash of the reserved pasta water to thin it out.
+
+7. Serve immediately, garnished with additional grated cheese, freshly ground black pepper, and chopped parsley.`,
+            healthTips: `• Carbonara is a rich dish, so consider serving it with a light side salad to balance the meal.
+• For a lighter version, you can use turkey bacon instead of pancetta and reduce the amount of cheese.
+• Adding green peas or asparagus can introduce some vegetables to this classic dish.
+• Whole wheat pasta can be substituted for regular pasta to increase the fiber content.
+• This dish is high in protein from the eggs and cheese, making it quite satisfying.`
+        };
+
+        // Initialize markdown-it
+        const md = window.markdownit({
+            html: true,
+            breaks: true,
+            linkify: true,
+            typographer: true
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Format the ingredients with markdown - improved handling
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Check for saved theme preference or use preferred color scheme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else {
+                // Use system preference as default
+                const systemTheme = prefersDarkScheme.matches ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', systemTheme);
+                updateThemeIcon(systemTheme);
+            }
+            
+            // Update icon based on current theme
+            function updateThemeIcon(theme) {
+                const icon = themeToggle.querySelector('i');
+                if (theme === 'light') {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            }
+            
+            // Toggle theme when button is clicked
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Apply theme change with animation
+                anime({
+                    targets: 'body',
+                    opacity: [1, 0.96, 1],
+                    duration: 300,
+                    easing: 'easeInOutQuad',
+                    begin: function() {
+                        document.body.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('theme', newTheme);
+                        updateThemeIcon(newTheme);
+                    }
+                });
+            });
+            
+            // Populate recipe data
+            document.getElementById('recipeTitle').textContent = recipeData.title;
+            
+            // Clear and populate tags
+            const tagsContainer = document.getElementById('recipeTags');
+            tagsContainer.innerHTML = '';
+            recipeData.tags.forEach(tag => {
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'tag';
+                tagSpan.textContent = tag;
+                tagsContainer.appendChild(tagSpan);
+            });
+            
+            // Format and render ingredients
             const ingredientsElement = document.getElementById('ingredientsList');
-            const ingredientsContent = ingredientsElement.getAttribute('data-content');
-            if (ingredientsContent) {
-                // Replace \r\n with \n to normalize line breaks across platforms
-                const normalizedContent = ingredientsContent.replace(/\r\n/g, '\n');
-                
-                // Check if content looks like a list but doesn't have markdown list formatting
-                let formattedContent = normalizedContent;
-                if (!normalizedContent.match(/^[\*\-\+]|\d+\./m)) {
-                    // Convert plain text list to markdown list
-                    formattedContent = normalizedContent
-                        .split('\n')
-                        .filter(line => line.trim())
-                        .map(line => `- ${line}`)
-                        .join('\n');
-                }
-                
-                // Render markdown and sanitize output
-                const renderedHtml = md.render(formattedContent);
-                ingredientsElement.innerHTML = window.sanitizeHtml ? 
-                    sanitizeHtml(renderedHtml, {
-                        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
-                        allowedAttributes: {
-                            '*': ['class', 'style'],
-                            'a': ['href', 'target', 'rel'],
-                            'img': ['src', 'alt']
-                        }
-                    }) : renderedHtml;
-            }
+            ingredientsElement.innerHTML = md.render(recipeData.ingredients);
             
-            // Format the instructions with markdown
+            // Format and render instructions
             const instructionsElement = document.getElementById('instructionsList');
-            const instructionsContent = instructionsElement.getAttribute('data-content');
-            if (instructionsContent) {
-                // Replace \r\n with \n to normalize line breaks
-                const normalizedContent = instructionsContent.replace(/\r\n/g, '\n');
-                
-                // Check if content should be formatted as numbered list
-                let formattedContent = normalizedContent;
-                if (!normalizedContent.match(/^\d+\./m) && 
-                    !normalizedContent.match(/^[\*\-\+]/m) && 
-                    normalizedContent.split('\n').filter(l => l.trim()).length > 1) {
-                    // Convert plain text steps to numbered markdown list
-                    formattedContent = normalizedContent
-                        .split('\n')
-                        .filter(line => line.trim())
-                        .map((line, index) => `${index + 1}. ${line}`)
-                        .join('\n');
-                }
-                
-                // Render markdown and sanitize output
-                const renderedHtml = md.render(formattedContent);
-                instructionsElement.innerHTML = window.sanitizeHtml ? 
-                    sanitizeHtml(renderedHtml, {
-                        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['h1', 'h2', 'img']),
-                        allowedAttributes: {
-                            '*': ['class', 'style'],
-                            'a': ['href', 'target', 'rel'],
-                            'img': ['src', 'alt']
-                        }
-                    }) : renderedHtml;
-            }
+            instructionsElement.innerHTML = md.render(recipeData.instructions);
             
-            // Process ingredients for alternatives with improved parsing
+            // Format and render health tips
+            const healthTipsElement = document.getElementById('healthTipsContent');
+            healthTipsElement.innerHTML = formatGeminiResponse(recipeData.healthTips);
+            
+            // Process ingredients for alternatives
             const processedIngredients = document.getElementById('processedIngredients');
-            const ingredientsText = ingredientsContent || '';
+            processedIngredients.innerHTML = '';
             
-            // Better ingredient parsing - handle markdown lists, quantities, etc.
-            const ingredientRegex = /(?:^|\n)(?:[-*+]|\d+\.)\s*(?:([0-9¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+(?:\s*[-\/]\s*[0-9¼½¾⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+)?)\s*(?:cup|cups|tbsp|tsp|tablespoon|tablespoons|teaspoon|teaspoons|oz|ounce|ounces|lb|lbs|pound|pounds|g|gram|grams|kg|kilogram|kilograms|ml|milliliter|milliliters|l|liter|liters|pinch|pinches|dash|dashes|handful|handfuls|slice|slices|clove|cloves|bunch|bunches|sprig|sprigs|stalk|stalks|head|heads|piece|pieces|can|cans|jar|jars|package|packages|bottle|bottles)?\s*)?(.+?)(?=\n(?:[-*+]|\d+\.)|$)/gi;
+            // Parse ingredients from markdown
+            const ingredientLines = recipeData.ingredients.split('\n')
+                .filter(line => line.trim().startsWith('-'))
+                .map(line => line.replace('-', '').trim());
             
-            let ingredients = [];
-            let match;
-            while ((match = ingredientRegex.exec(ingredientsText + '\n-')) !== null) {
-                // Extract the actual ingredient name, removing any markdown formatting
-                const quantity = match[1] || '';
-                const unit = match[2] || '';
-                const ingredient = match[3].trim().replace(/\*\*|\*|\_\_|\_|\~\~|\`/g, '');
+            // Create interactive ingredient items
+            ingredientLines.forEach((ingredient, index) => {
+                // Extract the main ingredient name (before any commas or parentheses)
+                const mainIngredient = ingredient.split(',')[0].split('(')[0].trim();
                 
-                if (ingredient && ingredient.length > 2) {
-                    ingredients.push({
-                        full: quantity ? `${quantity} ${unit} ${ingredient}`.replace(/\s+/g, ' ').trim() : ingredient,
-                        name: ingredient.split(',')[0].split('(')[0].trim() // Get the basic ingredient name
-                    });
-                }
-            }
-            
-            // If regex didn't find anything, fall back to simple line splitting
-            if (ingredients.length === 0) {
-                ingredients = ingredientsText
-                    .split('\n')
-                    .filter(line => line.trim().length > 2)
-                    .map(line => {
-                        const cleaned = line.replace(/^[\*\-\+]\s+/, '')
-                                        .replace(/^[0-9]+\.\s+/, '')
-                                        .replace(/\*\*|\*|\_\_|\_|\~\~|\`/g, '')
-                                        .trim();
-                        return { 
-                            full: cleaned,
-                            name: cleaned.split(',')[0].split('(')[0].trim()
-                        };
-                    });
-            }
-            
-            // Create interactive ingredient items with better display
-            ingredients.forEach((ingredient, index) => {
+                // Remove quantities and measurements for the ingredient name
+                const cleanedIngredient = mainIngredient.replace(/^\d+(\.\d+)?(g|kg|ml|l|cups?|tbsp|tsp|oz|pounds?|lbs?)?/i, '').trim();
+                
                 const itemDiv = document.createElement('div');
-                itemDiv.className = 'ingredient-item';
+                itemDiv.className = 'ingredient-item reveal';
                 itemDiv.innerHTML = `
-                    <span>${ingredient.full}</span>
-                    <button class="alternative-btn" onclick="getAlternative('${ingredient.name.replace(/'/g, "\\'")}')" 
-                     data-ingredient="${ingredient.name}">
-                        Get alternatives
+                    <span>${ingredient}</span>
+                    <button class="alternative-btn" onclick="getAlternative('${cleanedIngredient.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-exchange-alt"></i> Alternatives
                     </button>
-                    <span id="loading-${index}" class="loading" style="display:none;">Thinking...</span>
                 `;
                 processedIngredients.appendChild(itemDiv);
+                
+                // Add staggered animation
+                setTimeout(() => {
+                    itemDiv.classList.add('active');
+                }, 100 + index * 50);
+            });
+            
+            // Set up allergy button
+            document.getElementById('allergyBtn').addEventListener('click', getAllergySafeSubstitutes);
+            
+            // Reveal animations on scroll
+            function revealOnScroll() {
+                const reveals = document.querySelectorAll('.reveal:not(.active)');
+                
+                reveals.forEach((element, index) => {
+                    const windowHeight = window.innerHeight;
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 100;
+                    
+                    if (elementTop < windowHeight - elementVisible) {
+                        setTimeout(() => {
+                            element.classList.add('active');
+                        }, index * 80);
+                    }
+                });
+            }
+            
+            window.addEventListener('scroll', revealOnScroll);
+            // Initial check for elements in viewport
+            setTimeout(revealOnScroll, 100);
+            
+            // Subtle logo animation
+            anime({
+                targets: '.logo',
+                scale: [
+                    { value: 1.1, duration: 300, easing: 'easeOutQuad' },
+                    { value: 1, duration: 300, easing: 'easeInOutQuad' }
+                ],
+                delay: 300
             });
         });
         
-        function getAlternative(ingredient) {
-            const alternativeResults = document.getElementById('alternativeResults');
-            alternativeResults.style.display = 'block';
-            alternativeResults.innerText = 'Getting alternatives for "' + ingredient + '"...';
-            
-            fetch(`/api/alternatives?ingredient=${encodeURIComponent(ingredient)}`)
-                .then(response => response.text())
-                .then(data => {
-                    alternativeResults.innerText = data;
-                })
-                .catch(error => {
-                    alternativeResults.innerText = 'Error: ' + error.message;
+        // Helper function to format Gemini API responses
+        function formatGeminiResponse(response) {
+            // Split response into sections if it contains bullet points
+            const lines = response.split('\n');
+            let formattedResponse = '';
+
+            // Check if response has bullet points
+            const hasBulletPoints = lines.some(line => line.trim().startsWith('•') || line.trim().startsWith('-'));
+
+            if (hasBulletPoints) {
+                // Process each line
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('•') || trimmedLine.startsWith('-')) {
+                        // Convert bullets to markdown list items
+                        formattedResponse += `- ${trimmedLine.substring(1).trim()}\n`;
+                    } else if (trimmedLine.length > 0) {
+                        // Add paragraphs for non-list text
+                        formattedResponse += `${trimmedLine}\n\n`;
+                    }
                 });
+            } else {
+                // Format as paragraphs if no bullet points
+                formattedResponse = lines
+                    .filter(line => line.trim().length > 0)
+                    .join('\n\n');
+            }
+
+            // Render the markdown
+            return md.render(formattedResponse);
         }
         
+        // Function to get alternatives for an ingredient
+        function getAlternative(ingredient) {
+            const alternativeResults = document.getElementById('alternativeResults');
+            
+            // Show loading state
+            alternativeResults.style.display = 'block';
+            alternativeResults.innerHTML = `<p>Finding alternatives for <strong>${ingredient}</strong>...</p>`;
+            
+            // Simulate API call with setTimeout (in a real app, this would be a fetch to your backend)
+            setTimeout(() => {
+                // Sample alternatives data (in a real app, this would come from the API)
+                let alternatives;
+                
+                switch(ingredient.toLowerCase()) {
+                    case 'pancetta':
+                    case 'guanciale':
+                        alternatives = `
+## Alternatives for Pancetta/Guanciale
+
+- **Bacon**: The most common substitute, though it has a smokier flavor
+- **Prosciutto**: Less fatty but adds a nice salty flavor
+- **Smoked Ham**: Works well when diced finely
+- **For Vegetarian Option**: Smoked tofu or tempeh with a bit of olive oil and salt
+                        `;
+                        break;
+                    case 'pecorino romano':
+                        alternatives = `
+## Alternatives for Pecorino Romano
+
+- **Parmigiano Reggiano**: Slightly milder but works well
+- **Grana Padano**: Similar texture with a more delicate flavor
+- **Aged Asiago**: Good substitute with a slightly sharper taste
+- **For Dairy-Free Option**: Nutritional yeast mixed with a pinch of salt
+                        `;
+                        break;
+                    case 'parmigiano reggiano':
+                        alternatives = `
+## Alternatives for Parmigiano Reggiano
+
+- **Pecorino Romano**: Sharper and saltier
+- **Grana Padano**: Very similar flavor profile
+- **Aged Manchego**: Different but compatible flavor
+- **For Dairy-Free Option**: Nutritional yeast with a bit of almond meal
+                        `;
+                        break;
+                    case 'spaghetti':
+                        alternatives = `
+## Alternatives for Spaghetti
+
+- **Linguine**: Slightly wider but works perfectly
+- **Fettuccine**: Wider pasta that holds the sauce well
+- **Bucatini**: Hollow spaghetti that adds an interesting texture
+- **For Gluten-Free Option**: Rice noodles or gluten-free pasta
+- **For Low-Carb Option**: Zucchini noodles or spaghetti squash
+                        `;
+                        break;
+                    default:
+                        alternatives = `
+## Alternatives for ${ingredient}
+
+- No specific alternatives found for this ingredient.
+- Try searching for a more specific ingredient name.
+                        `;
+                }
+                
+                // Render the alternatives with markdown
+                alternativeResults.innerHTML = md.render(alternatives);
+                
+                // Add animation
+                anime({
+                    targets: '#alternativeResults',
+                    opacity: [0, 1],
+                    translateY: [10, 0],
+                    duration: 400,
+                    easing: 'easeOutQuad'
+                });
+            }, 800);
+        }
+        
+        // Function to get allergy-safe substitutes
         function getAllergySafeSubstitutes() {
             const ingredient = document.getElementById('ingredient').value.trim();
             const allergies = document.getElementById('allergies').value.trim();
@@ -390,20 +936,72 @@
             const allergyResults = document.getElementById('allergyResults');
             const loadingElement = document.getElementById('allergyLoading');
             
+            // Show loading state
             loadingElement.style.display = 'inline-block';
             allergyResults.style.display = 'block';
-            allergyResults.innerText = 'Searching for allergy-safe substitutes...';
+            allergyResults.innerHTML = 'Searching for allergy-safe substitutes...';
             
-            fetch(`/api/allergy-substitutes?ingredient=${encodeURIComponent(ingredient)}&allergies=${encodeURIComponent(allergies)}`)
-                .then(response => response.text())
-                .then(data => {
-                    allergyResults.innerText = data;
-                    loadingElement.style.display = 'none';
-                })
-                .catch(error => {
-                    allergyResults.innerText = 'Error: ' + error.message;
-                    loadingElement.style.display = 'none';
+            // Simulate API call with setTimeout (in a real app, this would be a fetch to your backend)
+            setTimeout(() => {
+                // Sample response data (in a real app, this would come from the API)
+                let response;
+                
+                if (ingredient.toLowerCase().includes('cheese') && allergies.toLowerCase().includes('dairy')) {
+                    response = `
+## Dairy-Free Alternatives for Cheese
+
+- **Nutritional Yeast**: Provides a cheesy flavor without dairy
+- **Cashew Cheese**: Made from soaked cashews, nutritional yeast, and seasonings
+- **Coconut-Based Cheese**: Commercial options available in most grocery stores
+- **Tofu-Based Cheese**: Good for recipes that require melting
+                    `;
+                } else if (ingredient.toLowerCase().includes('milk') && allergies.toLowerCase().includes('dairy')) {
+                    response = `
+## Dairy-Free Alternatives for Milk
+
+- **Almond Milk**: Light flavor, works well in most recipes
+- **Oat Milk**: Creamy texture, great for cooking
+- **Coconut Milk**: Rich option, adds coconut flavor
+- **Soy Milk**: Protein-rich alternative with neutral taste
+                    `;
+                } else if (ingredient.toLowerCase().includes('flour') && allergies.toLowerCase().includes('gluten')) {
+                    response = `
+## Gluten-Free Alternatives for Flour
+
+- **Rice Flour**: Light texture, mild flavor
+- **Almond Flour**: Adds moisture and nutty flavor
+- **Chickpea Flour**: High protein content, good for savory dishes
+- **Gluten-Free Flour Blend**: Commercial blends designed to substitute 1:1 for wheat flour
+                    `;
+                } else {
+                    response = `
+## Allergy-Safe Alternatives for ${ingredient}
+
+Based on your allergies (${allergies}), consider these substitutes:
+
+- Option 1: Alternative ingredient with similar properties
+- Option 2: Different approach to achieve similar results
+- Option 3: Complete replacement that avoids allergens
+
+Always check product labels carefully as manufacturing processes may introduce cross-contamination.
+                    `;
+                }
+                
+                // Hide loading indicator
+                loadingElement.style.display = 'none';
+                
+                // Render the response with markdown
+                allergyResults.innerHTML = md.render(response);
+                
+                // Add animation
+                anime({
+                    targets: '#allergyResults',
+                    opacity: [0, 1],
+                    translateY: [10, 0],
+                    duration: 400,
+                    easing: 'easeOutQuad'
                 });
+            }, 1200);
         }
     </script>
 </body>

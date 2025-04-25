@@ -1,131 +1,739 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>RecipeVault - Smart Recipe Manager</title>
+    <title>RecipeVault - Professional Recipe Management</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+        /* Base Styles */
+        :root {
+            --primary: #2c7be5;
+            --primary-dark: #1a68d1;
+            --primary-light: #5995e8;
+            --secondary: #33b07c;
+            --background-dark: #121212;
+            --background: #1e1e1e;
+            --background-light: #2d2d2d;
+            --card-bg: #262626;
+            --text: #e9ecef;
+            --text-muted: #adb5bd;
+            --text-secondary: #83888e;
+            --border: #383838;
+            --error: #e63757;
+            --success: #33b07c;
+            --card-radius: 8px;
+            --transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.18);
+        }
+        
+        /* Light theme variables */
+        [data-theme="light"] {
+            --primary: #1e62c0;
+            --primary-dark: #1754a3;
+            --primary-light: #4785d6;
+            --secondary: #2a9363;
+            --background-dark: #e9ecef;
+            --background: #f8f9fa;
+            --background-light: #ffffff;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --text-secondary: #495057;
+            --border: #dee2e6;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--background-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--background-light);
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #505050;
+        }
+        
+        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem;
         }
+        
+        /* Header */
         header {
-            background-color: #1e1e1e;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background: var(--background-dark);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
-        h1 {
-            color: #bb86fc;
-            margin: 0;
-        }
-        .recipe-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .recipe-card {
-            background-color: #1e1e1e;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-        .recipe-card:hover {
-            transform: translateY(-5px);
-        }
-        .recipe-title {
-            color: #bb86fc;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        .tag {
-            display: inline-block;
-            background-color: #3700b3;
-            color: #fff;
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 15px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-        .actions {
-            margin-top: 15px;
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
-        .btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.6rem;
+            color: var(--primary);
+            margin-right: 0.8rem;
+            transform-origin: center;
+            transition: color 0.3s ease;
+        }
+        
+        .brand {
+            font-size: 1.5rem;
             font-weight: 600;
+            color: var(--text);
+            margin: 0;
+            letter-spacing: -0.02em;
+            transition: color 0.3s ease;
+        }
+        
+        .tagline {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 0.2rem;
+            letter-spacing: 0.01em;
+            transition: color 0.3s ease;
+        }
+        
+        /* Add Recipe Button */
+        .action-container {
+            margin: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
             text-decoration: none;
-            display: inline-block;
+            font-size: 0.9rem;
+            gap: 0.5rem;
+            letter-spacing: 0.01em;
         }
-        .btn-primary {
-            background-color: #bb86fc;
-            color: #121212;
-        }
-        .btn-danger {
-            background-color: #cf6679;
-            color: #121212;
-        }
+        
         .btn-add {
-            background-color: #03dac6;
-            color: #121212;
-            font-size: 18px;
-            padding: 10px 20px;
-            margin: 20px 0;
-            display: inline-block;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(44, 123, 229, 0.3);
         }
+        
+        .btn-add:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 10px rgba(44, 123, 229, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .btn-add i {
+            font-size: 0.9rem;
+        }
+        
+        /* Search Box */
+        .search-container {
+            position: relative;
+            width: 280px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 0.7rem 1rem 0.7rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--background-light);
+            color: var(--text);
+            outline: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .search-box:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 1px rgba(44, 123, 229, 0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        /* Recipe Grid */
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .recipe-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid var(--border);
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+        
+        .recipe-img {
+            height: 160px;
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+        
+        .recipe-img i {
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .recipe-content {
+            padding: 1.25rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .recipe-title {
+            color: var(--text);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+            transition: color 0.3s ease;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: rgba(44, 123, 229, 0.15);
+            color: var(--primary);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        [data-theme="light"] .tag {
+            background-color: rgba(44, 123, 229, 0.1);
+        }
+        
+        .tag:hover {
+            background-color: rgba(44, 123, 229, 0.25);
+        }
+        
+        .recipe-meta {
+            margin-top: auto;
+            display: flex;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            gap: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .actions {
+            margin-top: 1.2rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background-color: rgba(230, 55, 87, 0.15);
+            color: var(--error);
+        }
+        
+        .btn-danger:hover {
+            background-color: var(--error);
+            color: white;
+        }
+        
+        /* Empty State */
         .empty-state {
             text-align: center;
-            margin-top: 50px;
-            color: #bb86fc;
+            margin: 3rem auto;
+            max-width: 500px;
+            padding: 2.5rem;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            animation: fadeIn 0.8s ease-out;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+            transition: color 0.3s ease;
+        }
+        
+        .empty-state h2 {
+            color: var(--text);
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            transition: color 0.3s ease;
+        }
+        
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 1.8rem;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--background-dark);
+            padding: 1.5rem;
+            margin-top: 4rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.8rem;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--background-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 36px;
+            width: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* For animations on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 0.5rem 0;
+            }
+            
+            .logo-container {
+                justify-content: center;
+            }
+            
+            .action-container {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .search-container {
+                width: 100%;
+                margin-top: 0.8rem;
+            }
+            
+            .recipe-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>🧑‍🍳 RecipeVault</h1>
-        <p>Your Smart Recipe Manager with Gemini AI</p>
+        <div class="header-content">
+            <div class="logo-container">
+                <div class="logo"><i class="fas fa-book-bookmark"></i></div>
+                <div>
+                    <h1 class="brand">RecipeVault</h1>
+                    <p class="tagline">Professional Recipe Management with AI</p>
+                </div>
+            </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-box" placeholder="Search recipes..." id="searchInput">
+            </div>
+        </div>
     </header>
 
     <div class="container">
-        <div>
-            <a th:href="@{/add-recipe}" class="btn btn-add">+ Add New Recipe</a>
+        <div class="action-container reveal">
+            <div style="display: flex; gap: 1rem;">
+                <a th:href="@{/add-recipe}" class="btn btn-add">
+                    <i class="fas fa-plus"></i> Add Recipe
+                </a>
+                <a th:href="@{/chatbot}" class="btn btn-add">
+                    <i class="fas fa-robot"></i> AI Food Assistant
+                </a>
+            </div>
+            <div>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
         </div>
 
-        <div th:if="${recipes.empty}" class="empty-state">
-            <h2>No recipes found</h2>
-            <p>Start by adding your first recipe!</p>
+        <div th:if="${recipes.empty}" class="empty-state reveal">
+            <div class="empty-icon">
+                <i class="fas fa-bowl-food"></i>
+            </div>
+            <h2>No Recipes Found</h2>
+            <p>Your collection is empty. Start building your professional recipe portfolio.</p>
+            <a th:href="@{/add-recipe}" class="btn btn-add">
+                <i class="fas fa-plus"></i> Create First Recipe
+            </a>
         </div>
 
-        <div th:unless="${recipes.empty}" class="recipe-grid">
-            <div th:each="recipe : ${recipes}" class="recipe-card">
-                <h3 class="recipe-title" th:text="${recipe.title}">Recipe Title</h3>
-                
-                <div th:if="${recipe.tags != null && !recipe.tags.empty}">
-                    <span class="tag" th:each="tag : ${recipe.tags}" th:text="${tag}">Tag</span>
+        <div th:unless="${recipes.empty}" class="recipe-grid" id="recipeGrid">
+            <div th:each="recipe, iterStat : ${recipes}" class="recipe-card reveal">
+                <div class="recipe-img">
+                    <i class="fas fa-utensils"></i>
                 </div>
-                
-                <div class="actions">
-                    <a th:href="@{/view-recipe/{id}(id=${recipe.id})}" class="btn btn-primary">View</a>
-                    <a th:href="@{/delete-recipe/{id}(id=${recipe.id})}" class="btn btn-danger" 
-                       onclick="return confirm('Are you sure you want to delete this recipe?')">Delete</a>
+                <div class="recipe-content">
+                    <h3 class="recipe-title" th:text="${recipe.title}">Recipe Title</h3>
+                    
+                    <div class="tags-container" th:if="${recipe.tags != null && !recipe.tags.empty}">
+                        <span class="tag" th:each="tag : ${recipe.tags}" th:text="${tag}">Tag</span>
+                    </div>
+                    
+                    <div class="recipe-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-brain"></i>
+                            <span>AI Enhanced</span>
+                        </div>
+                    </div>
+                    
+                    <div class="actions">
+                        <a th:href="@{/view-recipe/{id}(id=${recipe.id})}" class="btn btn-primary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <a th:href="@{/delete-recipe/{id}(id=${recipe.id})}" 
+                           class="btn btn-icon btn-danger" 
+                           onclick="return confirm('Are you sure you want to delete this recipe?')" 
+                           title="Delete recipe">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">© 2025 RecipeVault - Enterprise Recipe Management Solution</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Terms</a>
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script th:inline="javascript">
+        // Professional animation and interaction logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Check for saved theme preference or use preferred color scheme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else {
+                // Use system preference as default
+                const systemTheme = prefersDarkScheme.matches ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', systemTheme);
+                updateThemeIcon(systemTheme);
+            }
+            
+            // Update icon based on current theme
+            function updateThemeIcon(theme) {
+                const icon = themeToggle.querySelector('i');
+                if (theme === 'light') {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            }
+            
+            // Toggle theme when button is clicked
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    // Apply theme change with animation
+                    anime({
+                        targets: 'body',
+                        opacity: [1, 0.96, 1],
+                        duration: 300,
+                        easing: 'easeInOutQuad',
+                        begin: function() {
+                            document.body.setAttribute('data-theme', newTheme);
+                            localStorage.setItem('theme', newTheme);
+                            updateThemeIcon(newTheme);
+                        }
+                    });
+                });
+            }
+            
+            // Subtle logo animation
+            anime({
+                targets: '.logo',
+                scale: [
+                    { value: 1.1, duration: 300, easing: 'easeOutQuad' },
+                    { value: 1, duration: 300, easing: 'easeInOutQuad' }
+                ],
+                delay: 300
+            });
+            
+            // Reveal animations on scroll with staggered timing
+            function revealOnScroll() {
+                const reveals = document.querySelectorAll('.reveal');
+                
+                reveals.forEach((element, index) => {
+                    const windowHeight = window.innerHeight;
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 100;
+                    
+                    if (elementTop < windowHeight - elementVisible) {
+                        element.classList.add('active');
+                        element.style.transitionDelay = `${index * 0.08}s`;
+                    }
+                });
+            }
+            
+            window.addEventListener('scroll', revealOnScroll);
+            // Initial check for elements in viewport
+            setTimeout(revealOnScroll, 100);
+            
+            // Enhanced search functionality with debounce
+            const searchInput = document.getElementById('searchInput');
+            const recipeGrid = document.getElementById('recipeGrid');
+            
+            if (searchInput && recipeGrid) {
+                // Simple debounce implementation
+                function debounce(func, wait) {
+                    let timeout;
+                    return function() {
+                        const context = this;
+                        const args = arguments;
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => {
+                            func.apply(context, args);
+                        }, wait);
+                    };
+                }
+                
+                const performSearch = debounce(function(e) {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    const recipeCards = recipeGrid.querySelectorAll('.recipe-card');
+                    
+                    recipeCards.forEach(card => {
+                        const title = card.querySelector('.recipe-title').textContent.toLowerCase();
+                        const tags = Array.from(card.querySelectorAll('.tag')).map(tag => tag.textContent.toLowerCase());
+                        
+                        const matchesSearch = title.includes(searchTerm) || 
+                                              tags.some(tag => tag.includes(searchTerm));
+                        
+                        if (matchesSearch || searchTerm === '') {
+                            card.style.display = 'flex';
+                            anime({
+                                targets: card,
+                                opacity: [0, 1],
+                                translateY: [10, 0],
+                                duration: 300,
+                                easing: 'easeOutQuad'
+                            });
+                        } else {
+                            anime({
+                                targets: card,
+                                opacity: [1, 0],
+                                translateY: [0, 10],
+                                duration: 300,
+                                easing: 'easeOutQuad',
+                                complete: function() {
+                                    card.style.display = 'none';
+                                }
+                            });
+                        }
+                    });
+                }, 250);
+                
+                searchInput.addEventListener('input', performSearch);
+            }
+        });
+    </script>
 </body>
 </html>
