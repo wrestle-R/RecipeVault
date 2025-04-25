@@ -1,5 +1,6 @@
 package com.example.recipeVault.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,30 +20,35 @@ public class RecipeRecommendationController {
     private RecommendationService recommendationService;
 
     @GetMapping("/chatbot")
-    public String showRecommendationForm() {
+    public String chatbot() {
         return "chatbot";
     }
 
     @PostMapping("/api/recommend")
     @ResponseBody
-    public String getRecommendation(@RequestParam String mealType,
-                                  @RequestParam String dietaryPreferences,
-                                  @RequestParam String hungerLevel,
-                                  @RequestParam String prepTime,
-                                  @RequestParam String ingredients,
-                                  @RequestParam String fitnessGoal,
-                                  @RequestParam String cuisine,
-                                  @RequestParam String equipment) {
+    public String getRecommendation(
+        @RequestParam String mealType,
+        @RequestParam String dietaryPreferences,
+        @RequestParam String hungerLevel,
+        @RequestParam String prepTime,
+        @RequestParam String ingredients,
+        @RequestParam String fitnessGoal,
+        @RequestParam String cuisine,
+        @RequestParam String equipment) {
+            
         return recommendationService.getRecommendation(
-            mealType, dietaryPreferences, hungerLevel, prepTime,
-            ingredients, fitnessGoal, cuisine, equipment
-        );
+            mealType, dietaryPreferences, hungerLevel, prepTime, 
+            ingredients, fitnessGoal, cuisine, equipment);
     }
 
     @PostMapping("/api/followup")
     @ResponseBody
-    public String handleFollowUp(@RequestBody Map<String, String> request) {
-        String question = request.get("question");
-        return recommendationService.getFollowUpResponse(question);
+    public String getFollowUp(@RequestBody Map<String, Object> request) {
+        String question = (String) request.get("question");
+        String initialRecommendation = (String) request.get("initialRecommendation");
+        @SuppressWarnings("unchecked")
+        List<Map<String, String>> history = (List<Map<String, String>>) request.get("history");
+        
+        return recommendationService.getFollowUpResponse(question, initialRecommendation, history);
     }
 }

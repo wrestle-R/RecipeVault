@@ -14,6 +14,7 @@
             --primary-dark: #1a68d1;
             --primary-light: #5995e8;
             --secondary: #33b07c;
+            --secondary-dark: #278d63;
             --background-dark: #121212;
             --background: #1e1e1e;
             --background-light: #2d2d2d;
@@ -24,11 +25,16 @@
             --border: #383838;
             --error: #e63757;
             --success: #33b07c;
-            --card-radius: 8px;
+            --warning: #ffc107;
+            --info: #5bc0de;
+            --card-radius: 12px;
+            --button-radius: 8px;
+            --input-radius: 8px;
             --transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
             --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.18);
+            --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
         }
         
         /* Light theme variables */
@@ -37,6 +43,7 @@
             --primary-dark: #1754a3;
             --primary-light: #4785d6;
             --secondary: #2a9363;
+            --secondary-dark: #217a50;
             --background-dark: #e9ecef;
             --background: #f8f9fa;
             --background-light: #ffffff;
@@ -45,9 +52,14 @@
             --text-muted: #6c757d;
             --text-secondary: #495057;
             --border: #dee2e6;
+            --error: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
             --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+            --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.03);
         }
         
         * {
@@ -67,26 +79,28 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             transition: background-color 0.3s ease, color 0.3s ease;
+            scroll-behavior: smooth;
         }
         
         /* Scrollbar styling */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: var(--background-dark);
+            background: var(--background);
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--background-light);
+            background: var(--primary-light);
             border-radius: 6px;
+            opacity: 0.6;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #505050;
+            background: var(--primary);
         }
         
         /* Container */
         .container {
-            max-width: 1200px;
+            max-width: 1000px; /* Reduced max-width */
             margin: 0 auto;
             padding: 2rem;
         }
@@ -101,7 +115,7 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-md);
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         
@@ -119,16 +133,20 @@
         }
         
         .logo {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             color: var(--primary);
-            margin-right: 0.8rem;
+            margin-right: 1rem;
             transform-origin: center;
             transition: color 0.3s ease;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .brand {
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text);
             margin: 0;
             letter-spacing: -0.02em;
@@ -137,11 +155,36 @@
         
         .tagline {
             font-size: 0.85rem;
-            color: var (--text-secondary);
+            color: var(--text-secondary);
             font-weight: 400;
             margin-top: 0.2rem;
             letter-spacing: 0.01em;
             transition: color 0.3s ease;
+        }
+        
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: var(--button-radius);
+            background: var(--background-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            text-decoration: none;
+            margin-bottom: 2rem;
+        }
+        
+        .back-btn:hover {
+            background: var(--card-bg);
+            color: var(--text);
+            transform: translateX(-4px);
+        }
+        
+        .back-btn i {
+            margin-right: 0.5rem;
         }
         
         /* Add Recipe Button */
@@ -158,7 +201,7 @@
             justify-content: center;
             padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 6px;
+            border-radius: var(--button-radius);
             font-weight: 500;
             cursor: pointer;
             transition: var(--transition);
@@ -184,213 +227,602 @@
             font-size: 0.9rem;
         }
         
-        /* Search Box */
-        .search-container {
-            position: relative;
-            width: 280px;
-        }
-        
-        .search-box {
-            width: 100%;
-            padding: 0.7rem 1rem 0.7rem 2.5rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
+        /* Theme toggle */
+        .theme-toggle {
             background: var(--background-light);
-            color: var(--text);
-            outline: none;
-            transition: var(--transition);
-            font-size: 0.9rem;
-        }
-        
-        .search-box:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 1px rgba(44, 123, 229, 0.2);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 0.8rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
-        }
-        
-        /* Recipe Grid */
-        .recipe-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .recipe-card {
-            background: var(--card-bg);
-            border-radius: var(--card-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
             border: 1px solid var(--border);
-        }
-        
-        .recipe-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary-light);
-        }
-        
-        .recipe-img {
-            height: 160px;
-            background: linear-gradient(45deg, var(--primary-dark), var(--primary));
-            position: relative;
-            overflow: hidden;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s ease;
         }
         
-        .recipe-img i {
-            font-size: 2.5rem;
-            color: rgba(255, 255, 255, 0.25);
-        }
-        
-        .recipe-content {
-            padding: 1.25rem;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .recipe-title {
+        .theme-toggle:hover {
+            background: var(--border);
             color: var(--text);
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-            line-height: 1.3;
-            letter-spacing: -0.01em;
+            transform: rotate(15deg);
+        }
+        
+        /* Form specific styles */
+        .recommendation-form {
+            /* Removed max-width: 800px; */
+            margin: 2rem auto; /* Keep auto margin for centering if container is wider */
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        
+        .recommendation-form:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: var(--text);
+            position: relative;
+            padding-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .form-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+        
+        .form-title i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 500;
             transition: color 0.3s ease;
         }
         
-        .tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-bottom: 1rem;
+        .form-label i {
+            color: var (--primary);
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--input-radius);
+            background: var(--background);
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 1rem) center;
+            background-size: 12px;
+            padding-right: 2.5rem;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
         }
         
-        .tag {
-            display: inline-block;
-            background-color: rgba(44, 123, 229, 0.15);
-            color: var(--primary);
-            font-size: 0.7rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            transition: var(--transition);
+        .form-select:hover {
+            border-color: var(--primary-light);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--input-radius); /* Fixed typo */
+            background: var(--background);
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
+        }
+        
+        .form-input:hover {
+            border-color: var(--primary-light); /* Fixed typo */
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--button-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 123, 229, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: translate(-50%, -50%) scale(1);
+            transition: opacity 1s, transform 0.5s;
+        }
+        
+        .submit-btn:active::after {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(20);
+            transition: transform 0.5s;
+        }
+        
+        .submit-btn i {
+            margin-right: 0.5rem;
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 3rem auto;
+            max-width: 400px;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(44, 123, 229, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(44, 123, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(44, 123, 229, 0); }
+        }
+
+        .loader-icon {
+            width: 50px;
+            height: 50px;
+            position: relative;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .loader-icon .spinner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loader-icon .spinner:nth-child(2) {
+            border-top-color: transparent;
+            border-bottom-color: var(--primary-light);
+            animation-duration: 1.3s;
+        }
+        
+        .loader-icon .spinner:nth-child(3) {
+            border-top-color: transparent;
+            border-right-color: var(--secondary);
+            animation-duration: 1.6s;
+        }
+        
+        .loader-text {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
             font-weight: 500;
         }
         
-        [data-theme="light"] .tag {
-            background-color: rgba(44, 123, 229, 0.1);
-        }
-        
-        .tag:hover {
-            background-color: rgba(44, 123, 229, 0.25);
-        }
-        
-        .recipe-meta {
-            margin-top: auto;
-            display: flex;
-            font-size: 0.8rem;
+        .loader-subtext {
             color: var(--text-secondary);
-            gap: 1rem;
-            transition: color 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Chat interface */
+        .chat-section {
+            display: none;
+            margin: 3rem auto; /* Keep auto margin */
+            /* Removed max-width: 850px; */
+            animation: fadeIn 0.5s ease;
         }
         
-        .meta-item {
+        .chat-header {
+            padding: 1rem 1.5rem;
+            background: var(--background-dark);
+            border-radius: var(--card-radius) var(--card-radius) 0 0;
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            border-bottom: none;
         }
         
-        .actions {
-            margin-top: 1.2rem;
+        .chat-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chat-title i {
+            color: var(--primary);
+        }
+        
+        .chat-controls {
             display: flex;
             gap: 0.5rem;
         }
         
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            flex: 1;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        .btn-icon {
-            width: 36px;
-            height: 36px;
-            padding: 0;
-            border-radius: 6px;
+        .chat-control-btn {
+            background: var(--background-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
         }
         
-        .btn-danger {
-            background-color: rgba(230, 55, 87, 0.15);
-            color: var(--error);
+        .chat-control-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border-radius: 0 0 var(--card-radius) var(--card-radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            max-height: 650px;
+            transition: all 0.3s ease;
         }
         
-        .btn-danger:hover {
-            background-color: var(--error);
+        .chat-container:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .chat-messages {
+            padding: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 400px; 
+            max-height: 65vh; /* Increased max-height */
+            scroll-behavior: smooth;
+            background-color: var(--card-bg); /* Ensure a solid background */
+        }
+        
+        .chat-message {
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s ease-out forwards;
+            max-width: 85%;
+            position: relative;
+        }
+
+        .chat-message.ai {
+            margin-right: auto;
+            padding: 1rem 1.5rem; /* Adjusted padding slightly */
+            background: var(--background-light); /* Use a slightly different background */
+            color: var(--text);
+            border-radius: 1rem 1rem 1rem 0;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chat-message.user {
+            margin-left: auto;
+            padding: 1rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 1rem 1rem 0 1rem;
+            text-align: right;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .ai-message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .ai-avatar {
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            font-size: 0.8rem;
             color: white;
         }
         
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            margin: 3rem auto;
-            max-width: 500px;
-            padding: 2.5rem;
-            background: var(--card-bg);
-            border-radius: var(--card-radius);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-            animation: fadeIn 0.8s ease-out;
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .empty-icon {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            opacity: 0.8;
-            transition: color 0.3s ease;
-        }
-        
-        .empty-state h2 {
-            color: var(--text);
-            font-size: 1.5rem;
-            margin-bottom: 0.8rem;
+        .ai-name {
             font-weight: 600;
-            letter-spacing: -0.01em;
-            transition: color 0.3s ease;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: var(--background-light);
+            border-radius: 1rem 1rem 1rem 0;
+            max-width: fit-content;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
         }
         
-        .empty-state p {
-            color: var(--text-secondary);
-            margin-bottom: 1.8rem;
+        .typing-dots {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation: bounce 1s infinite 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation: bounce 1s infinite 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation: bounce 1s infinite 0.4s;
+        }
+
+        .chat-input-container {
+            display: flex;
+            align-items: flex-end; /* Align items to bottom for multi-line text */
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            background: var(--background-light);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--input-radius);
+            background: var(--background);
+            color: var(--text);
             font-size: 0.95rem;
-            transition: color 0.3s ease;
+            resize: none;
+            /* Use max-height to prevent excessive growth */
+            max-height: 150px; 
+            /* Changed min-height to line-height for single line initial state */
+            min-height: calc(0.95rem * 1.5 + 2 * 0.85rem); /* font-size * line-height + padding */
+            line-height: 1.5; /* Added line-height */
+            overflow-y: auto; /* Add scroll for overflow */
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(44, 123, 229, 0.2);
+        }
+        
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(26, 104, 209, 0.3);
+        }
+        
+        .send-btn:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Chat message actions */
+        .chat-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+        
+        .chat-action-btn {
+            padding: 0.5rem 1rem;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .chat-action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+        
+        /* Markdown content styling */
+        .markdown-content {
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3 {
+            color: var(--primary);
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+            font-weight: 600;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1em;
+        }
+
+        .markdown-content ul,
+        .markdown-content ol {
+            padding-left: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        .markdown-content li {
+            margin-bottom: 0.5em;
+        }
+        
+        /* Suggestion pills */
+        .suggestion-pills {
+            display: flex; /* Keep as flex */
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem; /* Adjusted padding */
+            border-top: 1px solid var(--border); /* Add separator */
+            background: var(--background-light); /* Match input container background */
+            order: -1; /* Move suggestion pills above input container visually */
+        }
+        
+        .suggestion-pill {
+            padding: 0.4rem 1rem;
+            background: var(--card-bg); /* Adjusted background */
+            border: 1px solid var(--border); /* Use standard border */
+            border-radius: 50px;
+            color: var(--text-secondary); /* Adjusted color */
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .suggestion-pill:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-dark); /* Match hover border */
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* For animations on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
         
         /* Footer */
@@ -432,45 +864,6 @@
             color: var(--primary);
         }
         
-        /* Theme toggle */
-        .theme-toggle {
-            background: var(--background-light);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            height: 36px;
-            width: 36px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .theme-toggle:hover {
-            background: var(--border);
-            color: var(--text);
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* For animations on scroll */
-        .reveal {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease;
-        }
-        
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .header-content {
@@ -490,222 +883,32 @@
                 align-items: stretch;
             }
             
-            .search-container {
-                width: 100%;
-                margin-top: 0.8rem;
+            .recommendation-form {
+                padding: 1.5rem;
             }
             
-            .recipe-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            .chat-message {
+                max-width: 95%;
+            }
+            
+            .chat-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .chat-action-btn {
+                justify-content: center;
+            }
+            
+            .chat-messages {
+                min-height: 300px; 
+                max-height: 60vh; /* Adjusted responsive max-height */
             }
             
             .container {
-                padding: 1.5rem;
+                padding: 1.5rem 1rem;
             }
         }
-        
-        /* Form specific styles */
-        .recommendation-form {
-            max-width: 800px;
-            margin: 2rem auto;
-            background: var(--card-bg);
-            border-radius: var(--card-radius);
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-        }
-
-        .form-title {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: var(--text);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-            font-weight: 500;
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: var(--background);
-            color: var(--text);
-            font-size: 0.95rem;
-            transition: var(--transition);
-        }
-
-        .form-select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: var(--background);
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-top: 1rem;
-        }
-
-        .submit-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .recommendation-result {
-            margin-top: 2rem;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: var(--card-radius);
-            border: 1px solid var(--border);
-            display: none;
-            box-shadow: var(--shadow-md);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .loader {
-            display: none;
-            text-align: center;
-            margin: 2rem 0;
-            color: var(--primary);
-        }
-
-        .loader i {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Emoji style */
-        .emoji-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .emoji {
-            font-size: 1.2rem;
-        }
-
-        /* Markdown content styling */
-        .markdown-content {
-            color: var(--text);
-            line-height: 1.7;
-            font-size: 1rem;
-        }
-
-        .markdown-content h1,
-        .markdown-content h2,
-        .markdown-content h3 {
-            color: var(--primary);
-            margin-top: 1.2em;
-            margin-bottom: 0.6em;
-            font-weight: 600;
-        }
-
-        .markdown-content p {
-            margin-bottom: 1em;
-        }
-
-        .markdown-content ul,
-        .markdown-content ol {
-            padding-left: 1.5em;
-            margin-bottom: 1em;
-        }
-
-        .markdown-content li {
-            margin-bottom: 0.5em;
-        }
-
-        /* Chat interface styles */
-        .chat-container {
-            display: none;
-            margin-top: 2rem;
-            background: var(--card-bg);
-            border-radius: var(--card-radius);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
-            max-height: 600px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-messages {
-            padding: 2rem;
-            flex: 1;
-            overflow-y: auto;
-            min-height: 400px;
-        }
-
-        .chat-message {
-            margin-bottom: 2rem;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.3s ease-out forwards;
-            max-width: 85%;
-        }
-
-        .chat-message.ai {
-            margin-right: auto;
-            padding: 1.5rem;
-            background: var(--background-light);
-            border-radius: var(--card-radius);
-            border: 1px solid var(--border);
-        }
-
-        .chat-message.user {
-            margin-left: auto;
-            text-align: right;
-            color: var(--text-secondary);
-        }
-
-        .typing-indicator {
-            display: none;
-            padding: 1rem;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        .typing-indicator i {
-            margin-right: 0.5rem;
-            animation: bounce 0.5s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-
     </style>
 </head>
 <body>
@@ -727,9 +930,9 @@
     </header>
 
     <div class="container">
-        <a href="/" class="btn" style="margin-bottom: 2rem; color: var(--text); text-decoration: none;">
+        <a href="/" class="back-btn">
             <i class="fas fa-arrow-left"></i>
-            <span style="margin-left: 0.5rem;">Return to Dashboard</span>
+            <span>Return to Dashboard</span>
         </a>
         
         <form id="recommendationForm" class="recommendation-form reveal">
@@ -738,7 +941,7 @@
             </h2>
 
             <div class="form-group">
-                <label class="form-label">What type of meal are you looking for?</label>
+                <label class="form-label"><i class="fas fa-bowl-food"></i> What type of meal are you looking for?</label>
                 <select name="mealType" class="form-select" required>
                     <option value="">Select meal type...</option>
                     <option value="breakfast">Breakfast</option>
@@ -750,7 +953,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Dietary Preferences</label>
+                <label class="form-label"><i class="fas fa-leaf"></i> Dietary Preferences</label>
                 <select name="dietaryPreferences" class="form-select" required>
                     <option value="">Select preference...</option>
                     <option value="vegetarian">Vegetarian</option>
@@ -763,7 +966,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">How would you describe your current hunger level?</label>
+                <label class="form-label"><i class="fas fa-battery-half"></i> How would you describe your current hunger level?</label>
                 <select name="hungerLevel" class="form-select" required>
                     <option value="">Select hunger level...</option>
                     <option value="light">Light</option>
@@ -773,7 +976,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">How much time can you spend preparing your food?</label>
+                <label class="form-label"><i class="fas fa-clock"></i> How much time can you spend preparing your food?</label>
                 <select name="prepTime" class="form-select" required>
                     <option value="">Select preparation time...</option>
                     <option value="quick">Under 10 mins</option>
@@ -783,12 +986,12 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Do you have any specific ingredients you want to include or avoid?</label>
+                <label class="form-label"><i class="fas fa-carrot"></i> Do you have any specific ingredients you want to include or avoid?</label>
                 <input type="text" name="ingredients" class="form-input" placeholder="E.g., include: chicken, avoid: nuts">
             </div>
 
             <div class="form-group">
-                <label class="form-label">What's your current fitness goal?</label>
+                <label class="form-label"><i class="fas fa-dumbbell"></i> What's your current fitness goal?</label>
                 <select name="fitnessGoal" class="form-select" required>
                     <option value="">Select fitness goal...</option>
                     <option value="muscle-gain">Muscle Gain</option>
@@ -799,7 +1002,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">What kind of cuisine do you prefer right now?</label>
+                <label class="form-label"><i class="fas fa-globe-americas"></i> What kind of cuisine do you prefer right now?</label>
                 <select name="cuisine" class="form-select" required>
                     <option value="">Select cuisine...</option>
                     <option value="indian">Indian</option>
@@ -813,7 +1016,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Do you have access to cooking equipment?</label>
+                <label class="form-label"><i class="fas fa-blender"></i> Do you have access to cooking equipment?</label>
                 <select name="equipment" class="form-select" required>
                     <option value="">Select available equipment...</option>
                     <option value="stove">Stove</option>
@@ -829,20 +1032,55 @@
         </form>
 
         <div class="loader">
-            <i class="fas fa-spinner fa-2x"></i>
-            <p>Crafting your perfect meal recommendation...</p>
+            <div class="loader-icon">
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+            </div>
+            <p class="loader-text">Crafting your perfect meal recommendation...</p>
+            <p class="loader-subtext">Please wait a moment.</p>
         </div>
 
-        <div class="chat-container">
-            <div class="chat-messages"></div>
-            <div class="chat-input-container">
-                <input type="text" class="chat-input" placeholder="Ask a follow-up question..." disabled>
-                <button class="send-btn" disabled>
-                    <i class="fas fa-paper-plane"></i>
-                </button>
+        <div class="chat-section">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <i class="fas fa-comments"></i> Chat with AI Assistant
+                </div>
+                <div class="chat-controls">
+                    <button class="chat-control-btn" id="clearChatBtn" title="Clear Chat">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button class="chat-control-btn" id="copyChatBtn" title="Copy Chat">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages"></div>
+                <div class="suggestion-pills">
+                    <!-- Suggestion pills will be added here -->
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" placeholder="Ask a follow-up question..." disabled></textarea>
+                    <button class="send-btn" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">© 2025 RecipeVault - Enterprise Recipe Management Solution</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Terms</a>
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Support</a>
+            </div>
+        </div>
+    </footer>
 
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
@@ -850,10 +1088,17 @@
             const loader = document.querySelector('.loader');
             const md = window.markdownit();
             const themeToggle = document.getElementById('themeToggle');
-            const chatContainer = document.querySelector('.chat-container');
+            const chatSection = document.querySelector('.chat-section');
             const chatMessages = document.querySelector('.chat-messages');
             const chatInput = document.querySelector('.chat-input');
             const sendBtn = document.querySelector('.send-btn');
+            const suggestionPillsContainer = document.querySelector('.suggestion-pills');
+            const clearChatBtn = document.getElementById('clearChatBtn');
+            const copyChatBtn = document.getElementById('copyChatBtn');
+            
+            // Initialize conversation context
+            let conversationHistory = [];
+            let initialRecommendation = '';
 
             // Theme toggle functionality
             const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -904,7 +1149,15 @@
                 
                 // Show loader and hide chat
                 loader.style.display = 'block';
-                chatContainer.style.display = 'none';
+                chatSection.style.display = 'none';
+                
+                // Reset conversation history when submitting new form
+                conversationHistory = [];
+                initialRecommendation = '';
+                chatMessages.innerHTML = '';
+                suggestionPillsContainer.innerHTML = '';
+                chatInput.disabled = true;
+                sendBtn.disabled = true;
                 
                 // Collect form data
                 const formData = new FormData(form);
@@ -923,23 +1176,24 @@
                     });
 
                     const data = await response.text();
+                    initialRecommendation = data;
                     
                     // Hide loader and show chat
                     loader.style.display = 'none';
-                    chatContainer.style.display = 'block';
+                    chatSection.style.display = 'block';
                     
-                    // Clear previous messages
-                    chatMessages.innerHTML = '';
-                    
-                    // Add initial recommendation
+                    // Add initial recommendation to conversation history and display
                     addMessage(data, true);
                     
                     // Enable chat input
                     chatInput.disabled = false;
                     sendBtn.disabled = false;
+                    
+                    // Add suggestion pills
+                    addSuggestionPills();
 
                     // Scroll to chat
-                    chatContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    chatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                 } catch (error) {
                     console.error('Error:', error);
@@ -948,25 +1202,35 @@
                 }
             });
 
-            let conversationHistory = [];
-
-            // Modify the addMessage function
+            // Add message function
             function addMessage(content, isAi = false) {
                 // Add message to history
                 conversationHistory.push({
                     role: isAi ? 'assistant' : 'user',
                     content: content
                 });
+                
+                // For debugging - log conversation history
+                console.log('Current conversation history:', conversationHistory);
 
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `chat-message ${isAi ? 'ai' : 'user'}`;
                 
                 if (isAi) {
                     const formattedContent = md.render(content);
-                    messageDiv.innerHTML = formattedContent;
                     
-                    // Add action buttons for AI responses if not a follow-up
-                    if (!content.includes('Ingredients:') && !content.includes('Steps:') && !content.includes('Nutrition:')) {
+                    // Add AI avatar and name
+                    const header = `
+                        <div class="ai-message-header">
+                            <div class="ai-avatar"><i class="fas fa-robot"></i></div>
+                            <span class="ai-name">AI Assistant</span>
+                        </div>
+                    `;
+                    
+                    messageDiv.innerHTML = header + `<div class="markdown-content">${formattedContent}</div>`;
+                    
+                    // Add action buttons for initial recommendation
+                    if (content === initialRecommendation) {
                         const actions = document.createElement('div');
                         actions.className = 'chat-actions';
                         actions.innerHTML = `
@@ -994,46 +1258,102 @@
             function showTypingIndicator() {
                 const indicator = document.createElement('div');
                 indicator.className = 'typing-indicator';
-                indicator.innerHTML = '<i class="fas fa-circle"></i> AI is typing...';
+                indicator.innerHTML = `
+                    <div class="ai-avatar"><i class="fas fa-robot"></i></div>
+                    <span>AI is typing</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
                 chatMessages.appendChild(indicator);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
                 return indicator;
             }
 
-            // Modify handleFollowUp function
+            // Handle follow-up function
             async function handleFollowUp(question) {
                 addMessage(question);
+                
+                // Clear suggestion pills
+                suggestionPillsContainer.innerHTML = '';
                 
                 const indicator = showTypingIndicator();
                 
                 try {
+                    // Format the request with initial recommendation as context
+                    const requestBody = {
+                        question: question,
+                        initialRecommendation: initialRecommendation,
+                        history: conversationHistory.map(msg => ({
+                            role: msg.role,
+                            content: msg.content
+                        }))
+                    };
+                    
+                    console.log('Sending request:', requestBody);
+                    
                     const response = await fetch('/api/followup', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ 
-                            question,
-                            history: conversationHistory 
-                        })
+                        body: JSON.stringify(requestBody)
                     });
                     
                     indicator.remove();
                     const data = await response.text();
                     addMessage(data, true);
+                    
+                    // Add suggestion pills again after response
+                    addSuggestionPills();
+                    
                 } catch (error) {
                     indicator.remove();
                     console.error('Error:', error);
                     addMessage('Sorry, I encountered an error processing your question.', true);
                 }
             }
+            
+            // Function to add suggestion pills
+            function addSuggestionPills() {
+                suggestionPillsContainer.innerHTML = ''; // Clear existing pills
+                // Only show pills if there's an initial recommendation
+                if (initialRecommendation) { 
+                    const suggestions = [
+                        "Can you make it spicier?",
+                        "Suggest a vegetarian alternative.",
+                        "What drink pairs well with this?",
+                        "How can I make this quicker?"
+                    ];
+                    
+                    suggestions.forEach(suggestion => {
+                        const pill = document.createElement('button');
+                        pill.className = 'suggestion-pill';
+                        pill.textContent = suggestion;
+                        pill.onclick = () => {
+                            chatInput.value = suggestion;
+                            // Ensure input is focused for better UX before sending
+                            chatInput.focus(); 
+                            // Use a small delay to allow focus before clicking send
+                            setTimeout(() => sendBtn.click(), 50); 
+                        };
+                        suggestionPillsContainer.appendChild(pill);
+                    });
+                    suggestionPillsContainer.style.display = 'flex'; // Show container
+                } else {
+                    suggestionPillsContainer.style.display = 'none'; // Hide if no recommendation
+                }
+            }
 
             // Handle send button and Enter key
             sendBtn.addEventListener('click', () => {
                 const question = chatInput.value.trim();
-                if (question) {
+                if (question && !sendBtn.disabled) { // Check if button is enabled
                     handleFollowUp(question);
                     chatInput.value = '';
+                    chatInput.style.height = '50px'; // Reset height
                 }
             });
             
@@ -1042,6 +1362,14 @@
                     e.preventDefault();
                     sendBtn.click();
                 }
+            });
+            
+            // Auto-resize textarea
+            chatInput.addEventListener('input', () => {
+                // Reset height to auto to shrink if text is deleted
+                chatInput.style.height = 'auto'; 
+                // Set height based on scroll height, respecting max-height via CSS
+                chatInput.style.height = (chatInput.scrollHeight) + 'px'; 
             });
             
             // Handle action buttons
@@ -1057,6 +1385,37 @@
                     
                     handleFollowUp(questions[action]);
                 }
+            });
+            
+            // Clear chat button
+            clearChatBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the chat history?')) {
+                    conversationHistory = [];
+                    initialRecommendation = '';
+                    chatMessages.innerHTML = '';
+                    suggestionPillsContainer.innerHTML = '';
+                    suggestionPillsContainer.style.display = 'none'; // Hide pills
+                    chatInput.value = ''; // Clear input field
+                    chatInput.disabled = true;
+                    sendBtn.disabled = true;
+                    chatSection.style.display = 'none'; // Optionally hide the chat section
+                    form.reset(); // Optionally reset the form
+                }
+            });
+            
+            // Copy chat button
+            copyChatBtn.addEventListener('click', () => {
+                let chatText = '';
+                conversationHistory.forEach(msg => {
+                    chatText += `${msg.role === 'assistant' ? 'AI Assistant' : 'User'}:\n${msg.content}\n\n`;
+                });
+                
+                navigator.clipboard.writeText(chatText.trim()).then(() => {
+                    alert('Chat history copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy chat history: ', err);
+                    alert('Failed to copy chat history.');
+                });
             });
 
             // Add reveal animation for the form
