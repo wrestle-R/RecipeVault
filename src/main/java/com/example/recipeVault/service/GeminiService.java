@@ -9,17 +9,34 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
-
+ 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.github.cdimascio.dotenv.Dotenv;
+
 
 @Service
 public class GeminiService {
 
-    // Using the API key directly instead of loading from properties
-    private final String apiKey = "AIzaSyARE0ml4Vlijfl9JN97WXDo4s4OU6K2w4A";
+    // Remove static Dotenv instance
+    // private static final Dotenv dotenv = Dotenv.load(); 
+    private final String apiKey; // Keep apiKey final
     
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
+
+    // Constructor to load Dotenv and API key
+    public GeminiService() {
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load(); // Load .env, ignore if missing
+        this.apiKey = dotenv.get("GEMINI_API_KEY"); 
+
+        // Optional: Add a check or warning if the key is not found
+        if (this.apiKey == null || this.apiKey.isEmpty()) {
+            System.err.println("WARNING: GEMINI_API_KEY not found in .env file or environment variables. API calls may fail.");
+            // Depending on requirements, you might want to throw an exception here
+            // throw new IllegalStateException("GEMINI_API_KEY is not configured.");
+        }
+    }
     
     public String getIngredientAlternatives(String ingredient) {
         try {
@@ -59,6 +76,11 @@ public class GeminiService {
     }
     
     private String callGeminiApi(String prompt) throws Exception {
+        // Check if API key is available before making the call
+        if (apiKey == null || apiKey.isEmpty()) {
+             return "Error: Gemini API Key is missing or not configured.";
+        }
+        
         // Updated URL to use the newer model and correct endpoint
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
 
@@ -86,12 +108,12 @@ public class GeminiService {
             .build();
         
         System.out.println("Calling Gemini API with URL: " + url);
-        System.out.println("Request body: " + requestBody);
+        // System.out.println("Request body: " + requestBody); // Consider removing in production
         
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         
         System.out.println("Response status: " + response.statusCode());
-        System.out.println("Response body: " + response.body());
+        // System.out.println("Response body: " + response.body()); // Consider removing or shortening in production
         
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             // Parse the response to extract just the generated text
@@ -100,11 +122,14 @@ public class GeminiService {
                 return extractTextFromGeminiResponse(responseMap);
             } catch (Exception e) {
                 System.err.println("Error processing response: " + e.getMessage());
-                return "We're having trouble processing this request at the moment. Please try again later.";
+                System.err.println("Response body was: " + response.body()); // Log failing body
+                return "We're having trouble processing the response from the AI service. Please try again later.";
             }
         } else {
+            // Log the error response body for debugging
+            System.err.println("Error response body from Gemini API: " + response.body());
             return "Error from Gemini API: HTTP " + response.statusCode() + 
-                   ". Pleases check your API key or try again later.";
+                   ". Please check your API key configuration or try again later."; 
         }
     }
     
@@ -115,29 +140,49 @@ public class GeminiService {
                 List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseMap.get("candidates");
                 if (candidates != null && !candidates.isEmpty()) {
                     Map<String, Object> candidate = candidates.get(0);
-                    Map<String, Object> content = (Map<String, Object>) candidate.get("content");
-                    List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
-                    if (parts != null && !parts.isEmpty()) {
-                        return (String) parts.get(0).get("text");
+                    // Check for finishReason STOP before accessing content
+                    if (candidate.containsKey("finishReason") && "STOP".equals(candidate.get("finishReason"))) {
+                        Map<String, Object> content = (Map<String, Object>) candidate.get("content");
+                        if (content != null && content.containsKey("parts")) {
+                            List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
+                            if (parts != null && !parts.isEmpty() && parts.get(0).containsKey("text")) {
+                                return (String) parts.get(0).get("text");
+                            }
+                        }
+                    } else {
+                         // Handle other finish reasons (e.g., SAFETY, MAX_TOKENS)
+                         String reason = candidate.containsKey("finishReason") ? (String) candidate.get("finishReason") : "UNKNOWN";
+                         System.err.println("Gemini API response finished with reason: " + reason);
+                         // Check for safety ratings if available
+                         if (candidate.containsKey("safetyRatings")) {
+                             System.err.println("Safety Ratings: " + candidate.get("safetyRatings"));
+                         }
+                         return "AI response blocked or incomplete. Reason: " + reason;
                     }
                 }
             }
             
-            // If we get here, try alternative formats
+            // Fallback checks (less common for current API versions)
             if (responseMap.containsKey("text")) {
                 return (String) responseMap.get("text");
             }
-            
-            if (responseMap.containsKey("content")) {
+            if (responseMap.containsKey("content") && responseMap.get("content") instanceof Map) {
                 Map<String, Object> content = (Map<String, Object>) responseMap.get("content");
                 if (content.containsKey("text")) {
                     return (String) content.get("text");
                 }
             }
             
-            // If all else fails
-            return "Response received but no text content found.";
+            // If no valid text found
+             System.err.println("Could not extract text from Gemini response structure: " + responseMap);
+            return "Response received but no valid text content found.";
+        } catch (ClassCastException e) {
+             System.err.println("Error parsing response structure (ClassCastException): " + e.getMessage());
+             System.err.println("Response map structure: " + responseMap);
+             return "Error parsing the structure of the response from Gemini API.";
         } catch (Exception e) {
+            System.err.println("Generic error parsing response: " + e.getMessage());
+            System.err.println("Response map structure: " + responseMap);
             return "Error parsing response from Gemini API. Please try again.";
         }
     }
