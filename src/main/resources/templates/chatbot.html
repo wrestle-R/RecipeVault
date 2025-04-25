@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AI Food Assistant - RecipeVault</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    <style>
+        /* Base Styles - copying from index.html */
+        :root {
+            --primary: #2c7be5;
+            --primary-dark: #1a68d1;
+            --primary-light: #5995e8;
+            --secondary: #33b07c;
+            --background-dark: #121212;
+            --background: #1e1e1e;
+            --background-light: #2d2d2d;
+            --card-bg: #262626;
+            --text: #e9ecef;
+            --text-muted: #adb5bd;
+            --text-secondary: #83888e;
+            --border: #383838;
+            --error: #e63757;
+            --success: #33b07c;
+            --card-radius: 8px;
+            --transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.18);
+        }
+        
+        /* Light theme variables */
+        [data-theme="light"] {
+            --primary: #1e62c0;
+            --primary-dark: #1754a3;
+            --primary-light: #4785d6;
+            --secondary: #2a9363;
+            --background-dark: #e9ecef;
+            --background: #f8f9fa;
+            --background-light: #ffffff;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --text-muted: #6c757d;
+            --text-secondary: #495057;
+            --border: #dee2e6;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--background-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--background-light);
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #505050;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Header */
+        header {
+            background: var(--background-dark);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.6rem;
+            color: var(--primary);
+            margin-right: 0.8rem;
+            transform-origin: center;
+            transition: color 0.3s ease;
+        }
+        
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0;
+            letter-spacing: -0.02em;
+            transition: color 0.3s ease;
+        }
+        
+        .tagline {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 0.2rem;
+            letter-spacing: 0.01em;
+            transition: color 0.3s ease;
+        }
+        
+        /* Add Recipe Button */
+        .action-container {
+            margin: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-size: 0.9rem;
+            gap: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+        
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(44, 123, 229, 0.3);
+        }
+        
+        .btn-add:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 10px rgba(44, 123, 229, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .btn-add i {
+            font-size: 0.9rem;
+        }
+        
+        /* Search Box */
+        .search-container {
+            position: relative;
+            width: 280px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 0.7rem 1rem 0.7rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--background-light);
+            color: var(--text);
+            outline: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .search-box:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 1px rgba(44, 123, 229, 0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        /* Recipe Grid */
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .recipe-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid var(--border);
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+        
+        .recipe-img {
+            height: 160px;
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+        
+        .recipe-img i {
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .recipe-content {
+            padding: 1.25rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .recipe-title {
+            color: var(--text);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+            transition: color 0.3s ease;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: rgba(44, 123, 229, 0.15);
+            color: var(--primary);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        [data-theme="light"] .tag {
+            background-color: rgba(44, 123, 229, 0.1);
+        }
+        
+        .tag:hover {
+            background-color: rgba(44, 123, 229, 0.25);
+        }
+        
+        .recipe-meta {
+            margin-top: auto;
+            display: flex;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            gap: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .actions {
+            margin-top: 1.2rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background-color: rgba(230, 55, 87, 0.15);
+            color: var(--error);
+        }
+        
+        .btn-danger:hover {
+            background-color: var(--error);
+            color: white;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            margin: 3rem auto;
+            max-width: 500px;
+            padding: 2.5rem;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            animation: fadeIn 0.8s ease-out;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+            transition: color 0.3s ease;
+        }
+        
+        .empty-state h2 {
+            color: var(--text);
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            transition: color 0.3s ease;
+        }
+        
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 1.8rem;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--background-dark);
+            padding: 1.5rem;
+            margin-top: 4rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.8rem;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--background-light);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 36px;
+            width: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* For animations on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 0.5rem 0;
+            }
+            
+            .logo-container {
+                justify-content: center;
+            }
+            
+            .action-container {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .search-container {
+                width: 100%;
+                margin-top: 0.8rem;
+            }
+            
+            .recipe-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Form specific styles */
+        .recommendation-form {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--background);
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 123, 229, 0.2);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--background);
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .recommendation-result {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            border: 1px solid var(--border);
+            display: none;
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+            color: var(--primary);
+        }
+
+        .loader i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Emoji style */
+        .emoji-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .emoji {
+            font-size: 1.2rem;
+        }
+
+        /* Markdown content styling */
+        .markdown-content {
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3 {
+            color: var(--primary);
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+            font-weight: 600;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1em;
+        }
+
+        .markdown-content ul,
+        .markdown-content ol {
+            padding-left: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        .markdown-content li {
+            margin-bottom: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo-container">
+                <a href="/" class="btn" style="text-decoration: none; color: inherit;">
+                    <i class="fas fa-arrow-left"></i>
+                    <span style="margin-left: 0.5rem;">Back to Recipes</span>
+                </a>
+                <div class="logo" style="margin-left: 1rem;"><i class="fas fa-robot"></i></div>
+                <div>
+                    <h1 class="brand">AI Food Assistant</h1>
+                    <p class="tagline">Smart Recipe Recommendations</p>
+                </div>
+            </div>
+            <div>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <form id="recommendationForm" class="recommendation-form reveal">
+            <h2 class="form-title">
+                <i class="fas fa-utensils"></i> Get Personalized Food Recommendations
+            </h2>
+
+            <div class="form-group">
+                <label class="form-label">What type of meal are you looking for?</label>
+                <select name="mealType" class="form-select" required>
+                    <option value="">Select meal type...</option>
+                    <option value="breakfast">🍳 Breakfast</option>
+                    <option value="lunch">🍱 Lunch</option>
+                    <option value="dinner">🍝 Dinner</option>
+                    <option value="snack">🍪 Snack</option>
+                    <option value="dessert">🍰 Dessert</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Dietary Preferences</label>
+                <select name="dietaryPreferences" class="form-select" required>
+                    <option value="">Select preference...</option>
+                    <option value="vegetarian">🌱 Vegetarian</option>
+                    <option value="non-vegetarian">🥩 Non-vegetarian</option>
+                    <option value="dairy-free">🥛 Dairy-Free</option>
+                    <option value="nut-free">🥜 Nut-Free</option>
+                    <option value="gluten-free">🌾 Gluten-Free</option>
+                    <option value="vegan">🥬 Vegan</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">How would you describe your current hunger level?</label>
+                <select name="hungerLevel" class="form-select" required>
+                    <option value="">Select hunger level...</option>
+                    <option value="light">😐 Light</option>
+                    <option value="moderate">🙂 Moderate</option>
+                    <option value="very-hungry">🤤 Very hungry</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">How much time can you spend preparing your food?</label>
+                <select name="prepTime" class="form-select" required>
+                    <option value="">Select preparation time...</option>
+                    <option value="quick">⏱ Under 10 mins</option>
+                    <option value="medium">⌛ 10–30 mins</option>
+                    <option value="long">🕰 30+ mins</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Do you have any specific ingredients you want to include or avoid?</label>
+                <input type="text" name="ingredients" class="form-input" placeholder="E.g., include: chicken, avoid: nuts">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">What's your current fitness goal?</label>
+                <select name="fitnessGoal" class="form-select" required>
+                    <option value="">Select fitness goal...</option>
+                    <option value="muscle-gain">💪 Muscle Gain</option>
+                    <option value="fat-loss">🏃 Fat Loss</option>
+                    <option value="maintenance">⚖️ Maintenance</option>
+                    <option value="clean-eating">🥗 Just eating clean</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">What kind of cuisine do you prefer right now?</label>
+                <select name="cuisine" class="form-select" required>
+                    <option value="">Select cuisine...</option>
+                    <option value="indian">🍛 Indian</option>
+                    <option value="italian">🍕 Italian</option>
+                    <option value="chinese">🥡 Chinese</option>
+                    <option value="mexican">🌮 Mexican</option>
+                    <option value="american">🍔 American</option>
+                    <option value="middle-eastern">🥙 Middle Eastern</option>
+                    <option value="any">🥗 No Preference</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Do you have access to cooking equipment?</label>
+                <select name="equipment" class="form-select" required>
+                    <option value="">Select available equipment...</option>
+                    <option value="stove">🍳 Stove</option>
+                    <option value="oven">🔥 Oven</option>
+                    <option value="microwave">⚡ Microwave</option>
+                    <option value="no-cooking">🍽 No Cooking Needed</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-magic"></i> Get Recommendations
+            </button>
+        </form>
+
+        <div class="loader">
+            <i class="fas fa-spinner fa-2x"></i>
+            <p>Crafting your perfect meal recommendation...</p>
+        </div>
+
+        <div class="recommendation-result markdown-content"></div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('recommendationForm');
+            const loader = document.querySelector('.loader');
+            const resultDiv = document.querySelector('.recommendation-result');
+            const md = window.markdownit();
+            const themeToggle = document.getElementById('themeToggle');
+
+            // Theme toggle functionality
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Check for saved theme preference or use preferred color scheme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else {
+                const systemTheme = prefersDarkScheme.matches ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', systemTheme);
+                updateThemeIcon(systemTheme);
+            }
+            
+            function updateThemeIcon(theme) {
+                const icon = themeToggle.querySelector('i');
+                if (theme === 'light') {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            }
+            
+            // Toggle theme when button is clicked
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                anime({
+                    targets: 'body',
+                    opacity: [1, 0.96, 1],
+                    duration: 300,
+                    easing: 'easeInOutQuad',
+                    begin: function() {
+                        document.body.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('theme', newTheme);
+                        updateThemeIcon(newTheme);
+                    }
+                });
+            });
+            
+            // Form submission handling
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Show loader
+                loader.style.display = 'block';
+                resultDiv.style.display = 'none';
+                
+                // Collect form data
+                const formData = new FormData(form);
+                const searchParams = new URLSearchParams();
+                for (const [key, value] of formData.entries()) {
+                    searchParams.append(key, value);
+                }
+
+                try {
+                    const response = await fetch('/api/recommend', {
+                        method: 'POST',
+                        body: searchParams,
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        }
+                    });
+
+                    const data = await response.text();
+                    
+                    // Hide loader and show results
+                    loader.style.display = 'none';
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = md.render(data || 'No recommendation available');
+                    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                    // Animate the result appearance
+                    anime({
+                        targets: '.recommendation-result',
+                        opacity: [0, 1],
+                        translateY: [20, 0],
+                        duration: 500,
+                        easing: 'easeOutQuad'
+                    });
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    resultDiv.innerHTML = 'An error occurred while getting recommendations.';
+                }
+            });
+
+            // Add reveal animation for the form
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(element => {
+                element.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

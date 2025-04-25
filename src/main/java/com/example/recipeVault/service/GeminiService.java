@@ -50,6 +50,14 @@ public class GeminiService {
         }
     }
     
+    public String getAIResponse(String prompt) {
+        try {
+            return callGeminiApi(prompt);
+        } catch (Exception e) {
+            return "Error generating response: " + e.getMessage();
+        }
+    }
+    
     private String callGeminiApi(String prompt) throws Exception {
         // Updated URL to use the newer model and correct endpoint
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
