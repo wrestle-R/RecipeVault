@@ -19,7 +19,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class GeminiService {
 
     // Remove static Dotenv instance
-    // private static final Dotenv dotenv = Dotenv.load(); 
     private final String apiKey; // Keep apiKey final
     
     private final ObjectMapper objectMapper = new ObjectMapper();
